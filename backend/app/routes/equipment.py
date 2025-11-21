@@ -18,6 +18,107 @@ from app.utils.dependencies import get_current_admin, get_current_user
 
 router = APIRouter(prefix="/api/equipment", tags=["Equipment"])
 
+# ============ USER ROUTES - MUST BE BEFORE /{equipment_id} ROUTE ============
+
+@router.get("/my-equipment", response_model=List[EquipmentResponseSchema])
+async def get_my_equipment(current_user: User = Depends(get_current_user)):
+    """Get equipment assigned to current user - USER ACCESS"""
+    print(f"🔍 User requesting equipment: {current_user.email}, ID: {current_user.id}")
+    print(f"🔍 User role: {current_user.role}")
+    print(f"🔍 User is_approved: {current_user.is_approved}")
+    print(f"🔍 User is_active: {current_user.is_active}")
+    
+    equipment_list = await Equipment.find(
+        Equipment.assigned_to_user_id == str(current_user.id)
+    ).to_list()
+    
+    print(f"✅ Found {len(equipment_list)} equipment items for user")
+    
+    return [
+        EquipmentResponseSchema(
+            id=str(eq.id),
+            property_number=eq.property_number,
+            gsd_code=eq.gsd_code,
+            item_number=eq.item_number,
+            equipment_type=eq.equipment_type,
+            brand=eq.brand,
+            model=eq.model,
+            serial_number=eq.serial_number,
+            specifications=eq.specifications,
+            acquisition_date=eq.acquisition_date,
+            acquisition_cost=eq.acquisition_cost,
+            assigned_to_user_id=eq.assigned_to_user_id,
+            assigned_to_name=eq.assigned_to_name,
+            assigned_date=eq.assigned_date,
+            previous_recipient=eq.previous_recipient,
+            condition=eq.condition,
+            status=eq.status,
+            remarks=eq.remarks,
+            par_file_path=eq.par_file_path,
+            par_number=eq.par_number,
+            created_by=eq.created_by,
+            created_at=eq.created_at,
+            updated_at=eq.updated_at
+        )
+        for eq in equipment_list
+    ]
+
+
+# ============ UTILITY ENDPOINTS - BEFORE PARAMETERIZED ROUTES ============
+
+@router.get("/types/list")
+async def get_equipment_types():
+    """Get list of equipment types"""
+    return {"equipment_types": EQUIPMENT_TYPES}
+
+
+@router.get("/conditions/list")
+async def get_conditions():
+    """Get list of equipment conditions"""
+    return {"conditions": CONDITIONS}
+
+
+@router.get("/statuses/list")
+async def get_statuses():
+    """Get list of equipment statuses"""
+    return {"statuses": STATUSES}
+
+
+@router.get("/available", response_model=List[EquipmentResponseSchema])
+async def get_available_equipment(current_admin: User = Depends(get_current_admin)):
+    """Get all available (unassigned) equipment - Admin only"""
+    equipment_list = await Equipment.find(Equipment.status == "Available").to_list()
+    
+    return [
+        EquipmentResponseSchema(
+            id=str(eq.id),
+            property_number=eq.property_number,
+            gsd_code=eq.gsd_code,
+            item_number=eq.item_number,
+            equipment_type=eq.equipment_type,
+            brand=eq.brand,
+            model=eq.model,
+            serial_number=eq.serial_number,
+            specifications=eq.specifications,
+            acquisition_date=eq.acquisition_date,
+            acquisition_cost=eq.acquisition_cost,
+            assigned_to_user_id=eq.assigned_to_user_id,
+            assigned_to_name=eq.assigned_to_name,
+            assigned_date=eq.assigned_date,
+            previous_recipient=eq.previous_recipient,
+            condition=eq.condition,
+            status=eq.status,
+            remarks=eq.remarks,
+            par_file_path=eq.par_file_path,
+            par_number=eq.par_number,
+            created_by=eq.created_by,
+            created_at=eq.created_at,
+            updated_at=eq.updated_at
+        )
+        for eq in equipment_list
+    ]
+
+
 # ============ ADMIN ROUTES ============
 
 @router.post("/", response_model=EquipmentResponseSchema, status_code=status.HTTP_201_CREATED)
@@ -86,41 +187,6 @@ async def create_equipment(
 async def get_all_equipment(current_admin: User = Depends(get_current_admin)):
     """Get all equipment - Admin only"""
     equipment_list = await Equipment.find_all().to_list()
-    
-    return [
-        EquipmentResponseSchema(
-            id=str(eq.id),
-            property_number=eq.property_number,
-            gsd_code=eq.gsd_code,
-            item_number=eq.item_number,
-            equipment_type=eq.equipment_type,
-            brand=eq.brand,
-            model=eq.model,
-            serial_number=eq.serial_number,
-            specifications=eq.specifications,
-            acquisition_date=eq.acquisition_date,
-            acquisition_cost=eq.acquisition_cost,
-            assigned_to_user_id=eq.assigned_to_user_id,
-            assigned_to_name=eq.assigned_to_name,
-            assigned_date=eq.assigned_date,
-            previous_recipient=eq.previous_recipient,
-            condition=eq.condition,
-            status=eq.status,
-            remarks=eq.remarks,
-            par_file_path=eq.par_file_path,
-            par_number=eq.par_number,
-            created_by=eq.created_by,
-            created_at=eq.created_at,
-            updated_at=eq.updated_at
-        )
-        for eq in equipment_list
-    ]
-
-
-@router.get("/available", response_model=List[EquipmentResponseSchema])
-async def get_available_equipment(current_admin: User = Depends(get_current_admin)):
-    """Get all available (unassigned) equipment - Admin only"""
-    equipment_list = await Equipment.find(Equipment.status == "Available").to_list()
     
     return [
         EquipmentResponseSchema(
@@ -390,45 +456,6 @@ async def unassign_equipment(
     )
 
 
-# ============ USER ROUTES ============
-
-# backend/app/routes/equipment.py
-@router.get("/my-equipment", response_model=List[EquipmentResponseSchema])
-async def get_my_equipment(current_user: User = Depends(get_current_user)):
-    """Get equipment assigned to current user"""
-    equipment_list = await Equipment.find(
-        Equipment.assigned_to_user_id == str(current_user.id)
-    ).to_list()
-    
-    return [
-        EquipmentResponseSchema(
-            id=str(eq.id),
-            property_number=eq.property_number,
-            gsd_code=eq.gsd_code,
-            item_number=eq.item_number,
-            equipment_type=eq.equipment_type,
-            brand=eq.brand,
-            model=eq.model,
-            serial_number=eq.serial_number,
-            specifications=eq.specifications,
-            acquisition_date=eq.acquisition_date,
-            acquisition_cost=eq.acquisition_cost,
-            assigned_to_user_id=eq.assigned_to_user_id,
-            assigned_to_name=eq.assigned_to_name,
-            assigned_date=eq.assigned_date,
-            previous_recipient=eq.previous_recipient,
-            condition=eq.condition,
-            status=eq.status,
-            remarks=eq.remarks,
-            par_file_path=eq.par_file_path,
-            par_number=eq.par_number,
-            created_by=eq.created_by,
-            created_at=eq.created_at,
-            updated_at=eq.updated_at
-        )
-        for eq in equipment_list
-    ]
-
 # ============ FILE UPLOAD (PAR DOCUMENTS) ============
 
 @router.post("/{equipment_id}/upload-par")
@@ -510,23 +537,3 @@ async def download_par_document(
         filename=f"PAR_{equipment.property_number}.pdf",
         media_type="application/pdf"
     )
-
-
-# ============ UTILITY ENDPOINTS ============
-
-@router.get("/types/list")
-async def get_equipment_types():
-    """Get list of equipment types"""
-    return {"equipment_types": EQUIPMENT_TYPES}
-
-
-@router.get("/conditions/list")
-async def get_conditions():
-    """Get list of equipment conditions"""
-    return {"conditions": CONDITIONS}
-
-
-@router.get("/statuses/list")
-async def get_statuses():
-    """Get list of equipment statuses"""
-    return {"statuses": STATUSES}

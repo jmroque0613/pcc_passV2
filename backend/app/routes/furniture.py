@@ -16,7 +16,52 @@ from app.schemas.equipment_schema import (
 )
 from app.utils.dependencies import get_current_admin, get_current_user
 
+# INITIALIZE ROUTER - THIS WAS MISSING!
 router = APIRouter(prefix="/api/furniture", tags=["Furniture"])
+
+# ============ USER ROUTES ============
+
+@router.get("/my-furniture", response_model=List[FurnitureResponseSchema])
+async def get_my_furniture(current_user: User = Depends(get_current_user)):
+    """Get furniture assigned to current user - USER ACCESS"""
+    print(f"User requesting furniture: {current_user.email}, ID: {current_user.id}")
+    
+    furniture_list = await Furniture.find(
+        Furniture.assigned_to_user_id == str(current_user.id)
+    ).to_list()
+    
+    print(f"Found {len(furniture_list)} furniture items for user")
+    
+    return [
+        FurnitureResponseSchema(
+            id=str(fur.id),
+            property_number=fur.property_number,
+            gsd_code=fur.gsd_code,
+            item_number=fur.item_number,
+            furniture_type=fur.furniture_type,
+            description=fur.description,
+            brand=fur.brand,
+            material=fur.material,
+            color=fur.color,
+            dimensions=fur.dimensions,
+            acquisition_date=fur.acquisition_date,
+            acquisition_cost=fur.acquisition_cost,
+            assigned_to_user_id=fur.assigned_to_user_id,
+            assigned_to_name=fur.assigned_to_name,
+            assigned_date=fur.assigned_date,
+            location=fur.location,
+            condition=fur.condition,
+            status=fur.status,
+            remarks=fur.remarks,
+            par_file_path=fur.par_file_path,
+            par_number=fur.par_number,
+            created_by=fur.created_by,
+            created_at=fur.created_at,
+            updated_at=fur.updated_at
+        )
+        for fur in furniture_list
+    ]
+
 
 # ============ ADMIN ROUTES ============
 
@@ -395,44 +440,6 @@ async def unassign_furniture(
     )
 
 
-# ============ USER ROUTES ============
-
-@router.get("/my-furniture", response_model=List[FurnitureResponseSchema])
-async def get_my_furniture(current_user: User = Depends(get_current_user)):
-    """Get furniture assigned to current user"""
-    furniture_list = await Furniture.find(
-        Furniture.assigned_to_user_id == str(current_user.id)
-    ).to_list()
-    
-    return [
-        FurnitureResponseSchema(
-            id=str(fur.id),
-            property_number=fur.property_number,
-            gsd_code=fur.gsd_code,
-            item_number=fur.item_number,
-            furniture_type=fur.furniture_type,
-            description=fur.description,
-            brand=fur.brand,
-            material=fur.material,
-            color=fur.color,
-            dimensions=fur.dimensions,
-            acquisition_date=fur.acquisition_date,
-            acquisition_cost=fur.acquisition_cost,
-            assigned_to_user_id=fur.assigned_to_user_id,
-            assigned_to_name=fur.assigned_to_name,
-            assigned_date=fur.assigned_date,
-            location=fur.location,
-            condition=fur.condition,
-            status=fur.status,
-            remarks=fur.remarks,
-            par_file_path=fur.par_file_path,
-            par_number=fur.par_number,
-            created_by=fur.created_by,
-            created_at=fur.created_at,
-            updated_at=fur.updated_at
-        )
-        for fur in furniture_list
-    ]
 
 
 # ============ FILE UPLOAD (PAR DOCUMENTS) ============
