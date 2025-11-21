@@ -1,32 +1,46 @@
 <!-- src/app/dashboard/user-dashboard/user-dashboard.component.html -->
-<div class="dashboard-wrapper">
+<div class="dashboard-wrapper" [style]="getStyles('wrapper')">
   <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo-section">
-      <div class="logo-icon">PCC</div>
+  <aside class="sidebar" [style]="getStyles('sidebar')">
+    <div class="logo-section" [style]="getStyles('logoSection')">
+      <div class="logo-icon" [style]="getStyles('logoIcon')">PCC</div>
     </div>
 
-    <nav class="nav-menu">
-      <a href="#" class="nav-item active" (click)="activePage = 'dashboard'; $event.preventDefault()">
+    <nav class="nav-menu" [style]="getStyles('navMenu')">
+      <a href="#" 
+         [class.active]="activePage === 'dashboard'"
+         [style]="getStyles('navItem', activePage === 'dashboard')"
+         (click)="activePage = 'dashboard'; $event.preventDefault()">
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </a>
-      <a href="#" class="nav-item" (click)="activePage = 'hr-files'; $event.preventDefault()">
+      <a href="#" 
+         [class.active]="activePage === 'hr-files'"
+         [style]="getStyles('navItem', activePage === 'hr-files')"
+         (click)="activePage = 'hr-files'; $event.preventDefault()">
         <mat-icon>folder</mat-icon>
         <span>HR Files</span>
       </a>
-      <a href="#" class="nav-item" (click)="activePage = 'equipment'; $event.preventDefault()">
+      <a href="#" 
+         [class.active]="activePage === 'equipment'"
+         [style]="getStyles('navItem', activePage === 'equipment')"
+         (click)="activePage = 'equipment'; $event.preventDefault()">
         <mat-icon>computer</mat-icon>
         <span>IT Equipment</span>
       </a>
-      <a href="#" class="nav-item" (click)="activePage = 'furniture'; $event.preventDefault()">
+      <a href="#" 
+         [class.active]="activePage === 'furniture'"
+         [style]="getStyles('navItem', activePage === 'furniture')"
+         (click)="activePage = 'furniture'; $event.preventDefault()">
         <mat-icon>chair</mat-icon>
         <span>Furnitures & Fixtures</span>
       </a>
     </nav>
 
-    <div class="sidebar-footer">
-      <a href="#" class="nav-item" (click)="logout(); $event.preventDefault()">
+    <div class="sidebar-footer" [style]="getStyles('sidebarFooter')">
+      <a href="#" 
+         [style]="getStyles('navItem')"
+         (click)="logout(); $event.preventDefault()">
         <mat-icon>logout</mat-icon>
         <span>Logout</span>
       </a>
@@ -34,9 +48,9 @@
   </aside>
 
   <!-- Main Content -->
-  <main class="main-content">
+  <main class="main-content" [style]="getStyles('mainContent')">
     <!-- Top Bar -->
-    <header class="top-bar">
+    <header class="top-bar" [style]="getStyles('topBar')">
       <div class="search-section">
         <mat-form-field appearance="outline" class="search-field">
           <mat-icon matPrefix>search</mat-icon>
@@ -44,77 +58,77 @@
         </mat-form-field>
       </div>
 
-      <div class="user-section">
+      <div class="user-section" [style]="getStyles('userSection')">
         <button mat-icon-button>
           <mat-icon [matBadge]="3" matBadgeColor="warn">notifications</mat-icon>
         </button>
-        <div class="user-info">
-          <div class="user-avatar">
+        <div class="user-info" [style]="getStyles('userInfo')">
+          <div class="user-avatar" [style]="getStyles('userAvatar')">
             <mat-icon>person</mat-icon>
           </div>
-          <div class="user-details">
-            <div class="user-name">{{ currentUser?.first_name }} {{ currentUser?.surname }}</div>
-            <div class="user-role">{{ currentUser?.position }}</div>
+          <div class="user-details" [style]="getStyles('userDetails')">
+            <div class="user-name" [style]="getStyles('userName')">{{ currentUser?.first_name }} {{ currentUser?.surname }}</div>
+            <div class="user-role" [style]="getStyles('userRole')">{{ currentUser?.position }}</div>
           </div>
         </div>
       </div>
     </header>
 
     <!-- Dashboard Content -->
-    <div class="content-area" *ngIf="activePage === 'dashboard'">
+    <div class="content-area" *ngIf="activePage === 'dashboard'" [style]="getStyles('contentArea')">
       <!-- Welcome Section -->
-      <div class="welcome-card">
+      <div class="welcome-card" [style]="getStyles('welcomeCard')">
         <div class="welcome-content">
-          <h1>Welcome back, {{ currentUser?.first_name }}! 👋</h1>
-          <p>Here's what's happening with your account today.</p>
+          <h1 [style]="getStyles('welcomeTitle')">Welcome back, {{ currentUser?.first_name }}! 👋</h1>
+          <p [style]="getStyles('welcomeText')">Here's what's happening with your account today.</p>
         </div>
-        <div class="welcome-date">
+        <div class="welcome-date" [style]="getStyles('welcomeDate')">
           <mat-icon>calendar_today</mat-icon>
           <span>{{ currentDate | date: 'MMMM d, y' }}</span>
         </div>
       </div>
 
       <!-- Stats Cards -->
-      <div class="stats-grid">
-        <div class="stat-card purple">
-          <div class="stat-icon">
-            <mat-icon>folder_open</mat-icon>
+      <div class="stats-grid" [style]="getStyles('statsGrid')">
+        <div class="stat-card purple" [style]="getStyles('statCard', 'purple')">
+          <div class="stat-icon" [style]="getStyles('statIcon', 'purple')">
+            <mat-icon [style]="getStyles('statIconMat')">folder_open</mat-icon>
           </div>
-          <div class="stat-details">
-            <div class="stat-value">{{ hrFilesCount }}</div>
-            <div class="stat-label">HR Files</div>
+          <div class="stat-details" [style]="getStyles('statDetails')">
+            <div class="stat-value" [style]="getStyles('statValue')">{{ hrFilesCount }}</div>
+            <div class="stat-label" [style]="getStyles('statLabel')">HR Files</div>
           </div>
-          <div class="stat-chart">
+          <div class="stat-chart" [style]="getStyles('statChart', 'purple')">
             <svg viewBox="0 0 100 40">
               <path d="M 0 30 Q 25 20, 50 25 T 100 15" fill="none" stroke="currentColor" stroke-width="2"/>
             </svg>
           </div>
         </div>
 
-        <div class="stat-card blue">
-          <div class="stat-icon">
-            <mat-icon>computer</mat-icon>
+        <div class="stat-card blue" [style]="getStyles('statCard', 'blue')">
+          <div class="stat-icon" [style]="getStyles('statIcon', 'blue')">
+            <mat-icon [style]="getStyles('statIconMat')">computer</mat-icon>
           </div>
-          <div class="stat-details">
-            <div class="stat-value">{{ equipmentCount }}</div>
-            <div class="stat-label">IT Equipment</div>
+          <div class="stat-details" [style]="getStyles('statDetails')">
+            <div class="stat-value" [style]="getStyles('statValue')">{{ equipmentCount }}</div>
+            <div class="stat-label" [style]="getStyles('statLabel')">IT Equipment</div>
           </div>
-          <div class="stat-chart">
+          <div class="stat-chart" [style]="getStyles('statChart', 'blue')">
             <svg viewBox="0 0 100 40">
               <path d="M 0 25 Q 25 15, 50 20 T 100 10" fill="none" stroke="currentColor" stroke-width="2"/>
             </svg>
           </div>
         </div>
 
-        <div class="stat-card orange">
-          <div class="stat-icon">
-            <mat-icon>chair</mat-icon>
+        <div class="stat-card orange" [style]="getStyles('statCard', 'orange')">
+          <div class="stat-icon" [style]="getStyles('statIcon', 'orange')">
+            <mat-icon [style]="getStyles('statIconMat')">chair</mat-icon>
           </div>
-          <div class="stat-details">
-            <div class="stat-value">{{ furnitureCount }}</div>
-            <div class="stat-label">Furnitures</div>
+          <div class="stat-details" [style]="getStyles('statDetails')">
+            <div class="stat-value" [style]="getStyles('statValue')">{{ furnitureCount }}</div>
+            <div class="stat-label" [style]="getStyles('statLabel')">Furnitures</div>
           </div>
-          <div class="stat-chart">
+          <div class="stat-chart" [style]="getStyles('statChart', 'orange')">
             <svg viewBox="0 0 100 40">
               <path d="M 0 20 Q 25 25, 50 18 T 100 22" fill="none" stroke="currentColor" stroke-width="2"/>
             </svg>
@@ -123,59 +137,59 @@
       </div>
 
       <!-- Recent HR Files and Equipment -->
-      <div class="dashboard-grid">
+      <div class="dashboard-grid" [style]="getStyles('dashboardGrid')">
         <!-- Recent HR Files -->
-        <div class="dashboard-card">
-          <div class="card-header">
-            <h3>
+        <div class="dashboard-card" [style]="getStyles('dashboardCard')">
+          <div class="card-header" [style]="getStyles('cardHeader')">
+            <h3 [style]="getStyles('cardTitle')">
               <mat-icon>description</mat-icon>
               Recent HR Files
             </h3>
-            <a href="#" (click)="activePage = 'hr-files'; $event.preventDefault()">View All</a>
+            <a href="#" [style]="getStyles('cardLink')" (click)="activePage = 'hr-files'; $event.preventDefault()">View All</a>
           </div>
-          <div class="card-content">
-            <div class="file-list">
-              <div class="file-item" *ngFor="let file of recentHRFiles">
-                <div class="file-icon">
+          <div class="card-content" [style]="getStyles('cardContent')">
+            <div class="file-list" [style]="getStyles('fileList')">
+              <div class="file-item" *ngFor="let file of recentHRFiles" [style]="getStyles('fileItem')">
+                <div class="file-icon" [style]="getStyles('fileIcon')">
                   <mat-icon>insert_drive_file</mat-icon>
                 </div>
-                <div class="file-info">
-                  <div class="file-name">{{ file.file_name }}</div>
-                  <div class="file-meta">{{ file.uploaded_at | date: 'MMM d, y' }}</div>
+                <div class="file-info" [style]="getStyles('fileInfo')">
+                  <div class="file-name" [style]="getStyles('fileName')">{{ file.file_name }}</div>
+                  <div class="file-meta" [style]="getStyles('fileMeta')">{{ file.uploaded_at | date: 'MMM d, y' }}</div>
                 </div>
                 <button mat-icon-button color="primary">
                   <mat-icon>download</mat-icon>
                 </button>
               </div>
-              <div class="empty-state" *ngIf="recentHRFiles.length === 0">
-                <mat-icon>folder_open</mat-icon>
-                <p>No HR files yet</p>
+              <div class="empty-state" *ngIf="recentHRFiles.length === 0" [style]="getStyles('emptyState')">
+                <mat-icon [style]="getStyles('emptyIcon')">folder_open</mat-icon>
+                <p [style]="getStyles('emptyText')">No HR files yet</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- IT Equipment Summary -->
-        <div class="dashboard-card">
-          <div class="card-header">
-            <h3>
+        <div class="dashboard-card" [style]="getStyles('dashboardCard')">
+          <div class="card-header" [style]="getStyles('cardHeader')">
+            <h3 [style]="getStyles('cardTitle')">
               <mat-icon>devices</mat-icon>
               IT Equipment
             </h3>
-            <a href="#" (click)="activePage = 'equipment'; $event.preventDefault()">View All</a>
+            <a href="#" [style]="getStyles('cardLink')" (click)="activePage = 'equipment'; $event.preventDefault()">View All</a>
           </div>
-          <div class="card-content">
-            <div class="equipment-summary">
-              <div class="equipment-type" *ngFor="let type of equipmentByType">
-                <div class="type-info">
+          <div class="card-content" [style]="getStyles('cardContent')">
+            <div class="equipment-summary" [style]="getStyles('equipmentSummary')">
+              <div class="equipment-type" *ngFor="let type of equipmentByType" [style]="getStyles('equipmentType')">
+                <div class="type-info" [style]="getStyles('typeInfo')">
                   <mat-icon>{{ getEquipmentIcon(type.type) }}</mat-icon>
                   <span>{{ type.type }}</span>
                 </div>
-                <div class="type-count">{{ type.count }}</div>
+                <div class="type-count" [style]="getStyles('typeCount')">{{ type.count }}</div>
               </div>
-              <div class="empty-state" *ngIf="equipmentByType.length === 0">
-                <mat-icon>computer</mat-icon>
-                <p>No equipment assigned</p>
+              <div class="empty-state" *ngIf="equipmentByType.length === 0" [style]="getStyles('emptyState')">
+                <mat-icon [style]="getStyles('emptyIcon')">computer</mat-icon>
+                <p [style]="getStyles('emptyText')">No equipment assigned</p>
               </div>
             </div>
           </div>
@@ -183,52 +197,52 @@
       </div>
 
       <!-- Profile Information -->
-      <div class="profile-card">
-        <div class="profile-header">
-          <h3>Profile Information</h3>
+      <div class="profile-card" [style]="getStyles('profileCard')">
+        <div class="profile-header" [style]="getStyles('profileHeader')">
+          <h3 [style]="getStyles('profileTitle')">Profile Information</h3>
           <button mat-button color="primary">Edit</button>
         </div>
-        <div class="profile-grid">
-          <div class="profile-item">
-            <mat-icon>person</mat-icon>
-            <div class="profile-info">
-              <div class="info-label">Full Name</div>
-              <div class="info-value">{{ currentUser?.first_name }} {{ currentUser?.middle_name }} {{ currentUser?.surname }}</div>
+        <div class="profile-grid" [style]="getStyles('profileGrid')">
+          <div class="profile-item" [style]="getStyles('profileItem')">
+            <mat-icon [style]="getStyles('profileIcon')">person</mat-icon>
+            <div class="profile-info" [style]="getStyles('profileInfo')">
+              <div class="info-label" [style]="getStyles('infoLabel')">Full Name</div>
+              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.first_name }} {{ currentUser?.middle_name }} {{ currentUser?.surname }}</div>
             </div>
           </div>
-          <div class="profile-item">
-            <mat-icon>email</mat-icon>
-            <div class="profile-info">
-              <div class="info-label">Email</div>
-              <div class="info-value">{{ currentUser?.email }}</div>
+          <div class="profile-item" [style]="getStyles('profileItem')">
+            <mat-icon [style]="getStyles('profileIcon')">email</mat-icon>
+            <div class="profile-info" [style]="getStyles('profileInfo')">
+              <div class="info-label" [style]="getStyles('infoLabel')">Email</div>
+              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.email }}</div>
             </div>
           </div>
-          <div class="profile-item">
-            <mat-icon>work</mat-icon>
-            <div class="profile-info">
-              <div class="info-label">Position</div>
-              <div class="info-value">{{ currentUser?.position }}</div>
+          <div class="profile-item" [style]="getStyles('profileItem')">
+            <mat-icon [style]="getStyles('profileIcon')">work</mat-icon>
+            <div class="profile-info" [style]="getStyles('profileInfo')">
+              <div class="info-label" [style]="getStyles('infoLabel')">Position</div>
+              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.position }}</div>
             </div>
           </div>
-          <div class="profile-item">
-            <mat-icon>business</mat-icon>
-            <div class="profile-info">
-              <div class="info-label">Unit/Division</div>
-              <div class="info-value">{{ currentUser?.assigned_unit }}</div>
+          <div class="profile-item" [style]="getStyles('profileItem')">
+            <mat-icon [style]="getStyles('profileIcon')">business</mat-icon>
+            <div class="profile-info" [style]="getStyles('profileInfo')">
+              <div class="info-label" [style]="getStyles('infoLabel')">Unit/Division</div>
+              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.assigned_unit }}</div>
             </div>
           </div>
-          <div class="profile-item">
-            <mat-icon>badge</mat-icon>
-            <div class="profile-info">
-              <div class="info-label">Salary Grade</div>
-              <div class="info-value">{{ currentUser?.salary_grade }}</div>
+          <div class="profile-item" [style]="getStyles('profileItem')">
+            <mat-icon [style]="getStyles('profileIcon')">badge</mat-icon>
+            <div class="profile-info" [style]="getStyles('profileInfo')">
+              <div class="info-label" [style]="getStyles('infoLabel')">Salary Grade</div>
+              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.salary_grade }}</div>
             </div>
           </div>
-          <div class="profile-item">
-            <mat-icon>event</mat-icon>
-            <div class="profile-info">
-              <div class="info-label">Starting Date</div>
-              <div class="info-value">{{ currentUser?.starting_date | date: 'MMMM d, y' }}</div>
+          <div class="profile-item" [style]="getStyles('profileItem')">
+            <mat-icon [style]="getStyles('profileIcon')">event</mat-icon>
+            <div class="profile-info" [style]="getStyles('profileInfo')">
+              <div class="info-label" [style]="getStyles('infoLabel')">Starting Date</div>
+              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.starting_date | date: 'MMMM d, y' }}</div>
             </div>
           </div>
         </div>
@@ -236,86 +250,106 @@
     </div>
 
     <!-- IT Equipment Page -->
-    <div class="content-area" *ngIf="activePage === 'equipment'">
-      <div class="page-header">
-        <h2>IT Equipment</h2>
-        <p>View all equipment assigned to you</p>
-      </div>
+    <div class="content-area" *ngIf="activePage === 'equipment'" [style]="getStyles('contentArea')">
+    <div class="page-header" [style]="getStyles('pageHeader')">
+        <h2 [style]="getStyles('pageTitle')">IT Equipment</h2>
+        <p [style]="getStyles('pageSubtitle')">View all equipment assigned to you</p>
+    </div>
 
-      <div class="table-card">
+    <div class="table-card" [style]="getStyles('tableCard')">
         <table mat-table [dataSource]="equipmentList" class="equipment-table">
-          <!-- GSD Code Column -->
-          <ng-container matColumnDef="gsd_code">
+        <!-- Property Number Column -->
+        <ng-container matColumnDef="property_number">
+            <th mat-header-cell *matHeaderCellDef>Property Number</th>
+            <td mat-cell *matCellDef="let element">{{ element.property_number }}</td>
+        </ng-container>
+
+        <!-- GSD Code Column -->
+        <ng-container matColumnDef="gsd_code">
             <th mat-header-cell *matHeaderCellDef>GSD Code</th>
             <td mat-cell *matCellDef="let element">{{ element.gsd_code }}</td>
-          </ng-container>
+        </ng-container>
 
-          <!-- Item No Column -->
-          <ng-container matColumnDef="item_no">
-            <th mat-header-cell *matHeaderCellDef>Item No.</th>
-            <td mat-cell *matCellDef="let element">{{ element.item_no }}</td>
-          </ng-container>
-
-          <!-- Type Column -->
-          <ng-container matColumnDef="equipment_type">
-            <th mat-header-cell *matHeaderCellDef>Type of IT Equipment</th>
+        <!-- Equipment Type Column -->
+        <ng-container matColumnDef="equipment_type">
+            <th mat-header-cell *matHeaderCellDef>Type of Equipment</th>
             <td mat-cell *matCellDef="let element">
-              <span class="equipment-badge">{{ element.equipment_type }}</span>
+            <span class="equipment-badge" [style]="getStyles('equipmentBadge')">{{ element.equipment_type }}</span>
             </td>
-          </ng-container>
+        </ng-container>
 
-          <!-- Date Received Column -->
-          <ng-container matColumnDef="date_received">
+        <!-- Brand Column -->
+        <ng-container matColumnDef="brand">
+            <th mat-header-cell *matHeaderCellDef>Brand</th>
+            <td mat-cell *matCellDef="let element">{{ element.brand }}</td>
+        </ng-container>
+
+        <!-- Model Column -->
+        <ng-container matColumnDef="model">
+            <th mat-header-cell *matHeaderCellDef>Model</th>
+            <td mat-cell *matCellDef="let element">{{ element.model }}</td>
+        </ng-container>
+
+        <!-- Date Received Column -->
+        <ng-container matColumnDef="assigned_date">
             <th mat-header-cell *matHeaderCellDef>Date Received</th>
-            <td mat-cell *matCellDef="let element">{{ element.date_received | date: 'MMM d, y' }}</td>
-          </ng-container>
+            <td mat-cell *matCellDef="let element">
+            {{ element.assigned_date ? (element.assigned_date | date: 'MMM d, y') : 'N/A' }}
+            </td>
+        </ng-container>
 
-          <!-- Previous Recipient Column -->
-          <ng-container matColumnDef="prev_recipient">
+        <!-- Previous Recipient Column -->
+        <ng-container matColumnDef="previous_recipient">
             <th mat-header-cell *matHeaderCellDef>Prev. Recipient</th>
-            <td mat-cell *matCellDef="let element">{{ element.prev_recipient || 'N/A' }}</td>
-          </ng-container>
+            <td mat-cell *matCellDef="let element">{{ element.previous_recipient || 'N/A' }}</td>
+        </ng-container>
 
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>PAR Document</th>
             <td mat-cell *matCellDef="let element">
-              <button mat-raised-button color="primary" (click)="downloadPAR(element.id)">
+            <button mat-raised-button color="primary" (click)="downloadPAR(element.id)" *ngIf="element.par_file_path">
                 <mat-icon>download</mat-icon>
                 Download
-              </button>
+            </button>
+            <span *ngIf="!element.par_file_path" [style]="getStyles('noPar')">No PAR Available</span>
             </td>
-          </ng-container>
+        </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="equipmentColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: equipmentColumns;"></tr>
+        <tr mat-header-row *matHeaderRowDef="equipmentColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: equipmentColumns;"></tr>
         </table>
 
-        <div class="empty-state" *ngIf="equipmentList.length === 0">
-          <mat-icon>computer</mat-icon>
-          <h3>No Equipment Assigned</h3>
-          <p>You don't have any IT equipment assigned yet.</p>
+        <div class="empty-state" *ngIf="equipmentList.length === 0 && !loading" [style]="getStyles('emptyState')">
+        <mat-icon [style]="getStyles('emptyIcon')">computer</mat-icon>
+        <h3 [style]="getStyles('emptyTitle')">No Equipment Assigned</h3>
+        <p [style]="getStyles('emptyText')">You don't have any IT equipment assigned yet.</p>
         </div>
-      </div>
+
+        <div class="loading-container" *ngIf="loading" [style]="'text-align: center; padding: 60px 20px;'">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p [style]="'margin-top: 20px; color: #6b7280;'">Loading equipment...</p>
+        </div>
+    </div>
     </div>
 
     <!-- HR Files Page -->
-    <div class="content-area" *ngIf="activePage === 'hr-files'">
-      <div class="page-header">
-        <h2>HR Files</h2>
-        <p>Access your HR documents</p>
+    <div class="content-area" *ngIf="activePage === 'hr-files'" [style]="getStyles('contentArea')">
+      <div class="page-header" [style]="getStyles('pageHeader')">
+        <h2 [style]="getStyles('pageTitle')">HR Files</h2>
+        <p [style]="getStyles('pageSubtitle')">Access your HR documents</p>
       </div>
 
-      <div class="table-card">
-        <div class="file-grid">
-          <div class="file-card" *ngFor="let file of hrFilesList">
-            <div class="file-card-icon">
-              <mat-icon>description</mat-icon>
+      <div class="table-card" [style]="getStyles('tableCard')">
+        <div class="file-grid" [style]="getStyles('fileGrid')">
+          <div class="file-card" *ngFor="let file of hrFilesList" [style]="getStyles('fileCard')">
+            <div class="file-card-icon" [style]="getStyles('fileCardIcon')">
+              <mat-icon [style]="getStyles('fileCardIconMat')">description</mat-icon>
             </div>
-            <div class="file-card-info">
-              <h4>{{ file.file_name }}</h4>
-              <p>{{ file.file_type }}</p>
-              <span class="file-date">{{ file.uploaded_at | date: 'MMM d, y' }}</span>
+            <div class="file-card-info" [style]="getStyles('fileCardInfo')">
+              <h4 [style]="getStyles('fileCardTitle')">{{ file.file_name }}</h4>
+              <p [style]="getStyles('fileCardType')">{{ file.file_type }}</p>
+              <span class="file-date" [style]="getStyles('fileDate')">{{ file.uploaded_at | date: 'MMM d, y' }}</span>
             </div>
             <button mat-icon-button color="primary" (click)="downloadFile(file.id)">
               <mat-icon>download</mat-icon>
@@ -323,763 +357,45 @@
           </div>
         </div>
 
-        <div class="empty-state" *ngIf="hrFilesList.length === 0">
-          <mat-icon>folder_open</mat-icon>
-          <h3>No HR Files</h3>
-          <p>Your HR files will appear here once uploaded by admin.</p>
+        <div class="empty-state" *ngIf="hrFilesList.length === 0" [style]="getStyles('emptyState')">
+          <mat-icon [style]="getStyles('emptyIcon')">folder_open</mat-icon>
+          <h3 [style]="getStyles('emptyTitle')">No HR Files</h3>
+          <p [style]="getStyles('emptyText')">Your HR files will appear here once uploaded by admin.</p>
         </div>
       </div>
     </div>
 
     <!-- Furniture Page -->
-    <div class="content-area" *ngIf="activePage === 'furniture'">
-      <div class="page-header">
-        <h2>Furnitures & Fixtures</h2>
-        <p>View furniture assigned to you</p>
+    <div class="content-area" *ngIf="activePage === 'furniture'" [style]="getStyles('contentArea')">
+      <div class="page-header" [style]="getStyles('pageHeader')">
+        <h2 [style]="getStyles('pageTitle')">Furnitures & Fixtures</h2>
+        <p [style]="getStyles('pageSubtitle')">View furniture assigned to you</p>
       </div>
 
-      <div class="table-card">
-        <div class="furniture-grid">
-          <div class="furniture-card" *ngFor="let item of furnitureList">
-            <div class="furniture-icon">
-              <mat-icon>{{ getFurnitureIcon(item.furniture_type) }}</mat-icon>
+      <div class="table-card" [style]="getStyles('tableCard')">
+        <div class="furniture-grid" [style]="getStyles('furnitureGrid')">
+          <div class="furniture-card" *ngFor="let item of furnitureList" [style]="getStyles('furnitureCard')">
+            <div class="furniture-icon" [style]="getStyles('furnitureIcon')">
+              <mat-icon [style]="getStyles('furnitureIconMat')">{{ getFurnitureIcon(item.furniture_type) }}</mat-icon>
             </div>
-            <div class="furniture-info">
-              <h4>{{ item.description }}</h4>
-              <p>{{ item.furniture_type }}</p>
-              <span class="furniture-date">Assigned: {{ item.assigned_date | date: 'MMM d, y' }}</span>
+            <div class="furniture-info" [style]="getStyles('furnitureInfo')">
+              <h4 [style]="getStyles('furnitureTitle')">{{ item.description }}</h4>
+              <p [style]="getStyles('furnitureType')">{{ item.furniture_type }}</p>
+              <span class="furniture-date" [style]="getStyles('furnitureDate')">Assigned: {{ item.assigned_date | date: 'MMM d, y' }}</span>
             </div>
-            <button mat-raised-button color="primary" (click)="downloadFurniturePAR(item.id)">
+            <button mat-raised-button color="primary" (click)="downloadFurniturePAR(item.id)" *ngIf="item.par_file_path">
               <mat-icon>download</mat-icon>
               PAR
             </button>
           </div>
         </div>
 
-        <div class="empty-state" *ngIf="furnitureList.length === 0">
-          <mat-icon>chair</mat-icon>
-          <h3>No Furniture Assigned</h3>
-          <p>You don't have any furniture assigned yet.</p>
+        <div class="empty-state" *ngIf="furnitureList.length === 0" [style]="getStyles('emptyState')">
+          <mat-icon [style]="getStyles('emptyIcon')">chair</mat-icon>
+          <h3 [style]="getStyles('emptyTitle')">No Furniture Assigned</h3>
+          <p [style]="getStyles('emptyText')">You don't have any furniture assigned yet.</p>
         </div>
       </div>
     </div>
   </main>
 </div>
-
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.dashboard-wrapper {
-  display: flex;
-  min-height: 100vh;
-  background: #f5f7fb;
-}
-
-/* Sidebar Styles */
-.sidebar {
-  width: 280px;
-  background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.logo-section {
-  padding: 30px 20px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.logo-icon {
-  width: 60px;
-  height: 60px;
-  background: white;
-  color: #6366f1;
-  border-radius: 15px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: 700;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.nav-menu {
-  flex: 1;
-  padding: 20px 0;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 15px 25px;
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  transition: all 0.3s ease;
-  border-left: 3px solid transparent;
-}
-
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.nav-item.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border-left-color: white;
-}
-
-.nav-item mat-icon {
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
-}
-
-.sidebar-footer {
-  padding: 20px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  margin-left: 280px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Top Bar */
-.top-bar {
-  background: white;
-  padding: 20px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.search-field {
-  width: 400px;
-}
-
-::ng-deep .search-field .mat-mdc-text-field-wrapper {
-  background: #f5f7fb;
-  border-radius: 12px;
-}
-
-::ng-deep .search-field .mdc-notched-outline__leading,
-::ng-deep .search-field .mdc-notched-outline__notch,
-::ng-deep .search-field .mdc-notched-outline__trailing {
-  border: none !important;
-}
-
-.user-section {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-avatar {
-  width: 45px;
-  height: 45px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: #1f2937;
-}
-
-.user-role {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-/* Content Area */
-.content-area {
-  padding: 30px 40px;
-  flex: 1;
-}
-
-/* Welcome Card */
-.welcome-card {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
-  padding: 30px;
-  border-radius: 20px;
-  margin-bottom: 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-}
-
-.welcome-content h1 {
-  font-size: 28px;
-  margin-bottom: 8px;
-}
-
-.welcome-content p {
-  opacity: 0.9;
-  font-size: 15px;
-}
-
-.welcome-date {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 12px 20px;
-  border-radius: 12px;
-}
-
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.stat-card {
-  background: white;
-  padding: 25px;
-  border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card.purple { border-left: 4px solid #8b5cf6; }
-.stat-card.blue { border-left: 4px solid #3b82f6; }
-.stat-card.orange { border-left: 4px solid #f59e0b; }
-
-.stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stat-card.purple .stat-icon {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
-}
-
-.stat-card.blue .stat-icon {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-
-.stat-card.orange .stat-icon {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-.stat-icon mat-icon {
-  font-size: 30px;
-  width: 30px;
-  height: 30px;
-}
-
-.stat-details {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 4px;
-}
-
-.stat-chart {
-  position: absolute;
-  right: 20px;
-  bottom: 0;
-  width: 100px;
-  height: 40px;
-  opacity: 0.3;
-}
-
-.stat-card.purple .stat-chart { color: #8b5cf6; }
-.stat-card.blue .stat-chart { color: #3b82f6; }
-.stat-card.orange .stat-chart { color: #f59e0b; }
-
-/* Dashboard Grid */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.dashboard-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-}
-
-.card-header {
-  padding: 20px 25px;
-  border-bottom: 1px solid #f3f4f6;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-header h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.card-header a {
-  color: #6366f1;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.card-content {
-  padding: 20px 25px;
-}
-
-/* File List */
-.file-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.file-item {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 15px;
-  background: #f9fafb;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.file-item:hover {
-  background: #f3f4f6;
-  transform: translateX(5px);
-}
-
-.file-icon {
-  width: 45px;
-  height: 45px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6366f1;
-}
-
-.file-info {
-  flex: 1;
-}
-
-.file-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1f2937;
-  margin-bottom: 4px;
-}
-
-.file-meta {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-/* Equipment Summary */
-.equipment-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.equipment-type {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background: #f9fafb;
-  border-radius: 12px;
-}
-
-.type-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #4b5563;
-}
-
-.type-count {
-  font-size: 18px;
-  font-weight: 600;
-  color: #6366f1;
-}
-
-/* Profile Card */
-.profile-card {
-  background: white;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.profile-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-
-.profile-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
-}
-
-.profile-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-}
-
-.profile-item mat-icon {
-  color: #6366f1;
-  margin-top: 2px;
-}
-
-.profile-info {
-  flex: 1;
-}
-
-.info-label {
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 4px;
-}
-
-.info-value {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1f2937;
-}
-
-/* Page Header */
-.page-header {
-  margin-bottom: 25px;
-}
-
-.page-header h2 {
-  font-size: 26px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 8px;
-}
-
-.page-header p {
-  color: #6b7280;
-  font-size: 14px;
-}
-
-/* Table Card */
-.table-card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow-x: auto;
-}
-
-.equipment-table {
-  width: 100%;
-}
-
-.equipment-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  background: rgba(99, 102, 241, 0.1);
-  color: #6366f1;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #9ca3af;
-}
-
-.empty-state mat-icon {
-  font-size: 80px;
-  width: 80px;
-  height: 80px;
-  opacity: 0.3;
-  margin-bottom: 15px;
-}
-
-.empty-state h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: #4b5563;
-}
-
-.empty-state p {
-  font-size: 14px;
-}
-
-/* File Grid */
-.file-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.file-card {
-  background: #f9fafb;
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-}
-
-.file-card:hover {
-  border-color: #6366f1;
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.file-card-icon {
-  width: 60px;
-  height: 60px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6366f1;
-  margin-bottom: 15px;
-}
-
-.file-card-icon mat-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-}
-
-.file-card-info {
-  flex: 1;
-  margin-bottom: 15px;
-}
-
-.file-card-info h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 4px;
-}
-
-.file-card-info p {
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 8px;
-}
-
-.file-date {
-  font-size: 11px;
-  color: #9ca3af;
-}
-
-/* Furniture Grid */
-.furniture-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.furniture-card {
-  background: white;
-  border: 2px solid #f3f4f6;
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  transition: all 0.3s ease;
-}
-
-.furniture-card:hover {
-  border-color: #6366f1;
-  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.1);
-}
-
-.furniture-icon {
-  width: 50px;
-  height: 50px;
-  background: rgba(245, 158, 11, 0.1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #f59e0b;
-}
-
-.furniture-icon mat-icon {
-  font-size: 28px;
-  width: 28px;
-  height: 28px;
-}
-
-.furniture-info {
-  flex: 1;
-}
-
-.furniture-info h4 {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 4px;
-}
-
-.furniture-info p {
-  font-size: 13px;
-  color: #6b7280;
-  margin-bottom: 6px;
-}
-
-.furniture-date {
-  font-size: 11px;
-  color: #9ca3af;
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .profile-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    width: 70px;
-  }
-  
-  .main-content {
-    margin-left: 70px;
-  }
-  
-  .logo-section {
-    padding: 20px 10px;
-  }
-  
-  .logo-icon {
-    width: 45px;
-    height: 45px;
-    font-size: 18px;
-  }
-  
-  .nav-item span {
-    display: none;
-  }
-  
-  .nav-item {
-    justify-content: center;
-    padding: 15px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .top-bar {
-    padding: 15px 20px;
-  }
-  
-  .search-field {
-    width: 200px;
-  }
-  
-  .content-area {
-    padding: 20px;
-  }
-  
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .file-grid,
-  .furniture-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

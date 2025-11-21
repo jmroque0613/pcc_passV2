@@ -392,6 +392,7 @@ async def unassign_equipment(
 
 # ============ USER ROUTES ============
 
+# backend/app/routes/equipment.py
 @router.get("/my-equipment", response_model=List[EquipmentResponseSchema])
 async def get_my_equipment(current_user: User = Depends(get_current_user)):
     """Get equipment assigned to current user"""
@@ -427,7 +428,6 @@ async def get_my_equipment(current_user: User = Depends(get_current_user)):
         )
         for eq in equipment_list
     ]
-
 
 # ============ FILE UPLOAD (PAR DOCUMENTS) ============
 
