@@ -1,0 +1,637 @@
+<!-- src/app/auth/admin-register/admin-register.component.html -->
+<div class="admin-register-wrapper">
+  <!-- Top Header -->
+  <div class="header-text">
+    <h1>Philippine Cancer Center</h1>
+    <p>Personnel and Supplies System</p>
+  </div>
+
+  <!-- Main Container -->
+  <div class="admin-register-container">
+    <!-- Left Side - Logo -->
+    <div class="logo-section">
+      <div class="logo-circle">
+        <div class="logo-placeholder">
+          <!-- Replace with actual logo -->
+            <img src="assets/images/pcc_logo.png" alt="PCC Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+      </div>
+
+      <!-- Warning Badge -->
+      <div class="warning-badge">
+        <mat-icon>warning</mat-icon>
+        <div class="warning-text">
+          <strong>Restricted Access</strong>
+          <span>Admin credentials required</span>
+        </div>
+      </div>
+      
+      <!-- Decorative Elements -->
+      <div class="decoration decoration-1"></div>
+      <div class="decoration decoration-2"></div>
+      <div class="decoration decoration-3"></div>
+    </div>
+
+    <!-- Right Side - Admin Form -->
+    <div class="form-section">
+      <div class="form-content">
+        <div class="admin-header">
+          <mat-icon class="admin-icon">admin_panel_settings</mat-icon>
+          <h2 class="form-title">Administrator Registration</h2>
+          <p class="form-subtitle">Secure admin account creation</p>
+        </div>
+        
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="success-alert">
+          <mat-icon>check_circle_outline</mat-icon>
+          <span>{{ successMessage }}</span>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="error-alert">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+          <mat-icon>info_outline</mat-icon>
+          <div class="info-text">
+            <strong>Security Notice:</strong> This registration requires a valid admin key. Contact the system administrator if you don't have access credentials.
+          </div>
+        </div>
+
+        <form [formGroup]="adminRegisterForm" (ngSubmit)="onSubmit()">
+          
+          <!-- Email Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Administrator Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="admin@pcc.gov.ph">
+            <mat-icon matPrefix class="input-icon">mail_outline</mat-icon>
+            <mat-error *ngIf="f['email'].hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="f['email'].hasError('email')">
+              Invalid email format
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Password Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Minimum 8 characters">
+            <mat-icon matPrefix class="input-icon">lock_outline</mat-icon>
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" tabindex="-1">
+              <mat-icon class="visibility-icon">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            <mat-error *ngIf="f['password'].hasError('required')">
+              Password is required
+            </mat-error>
+            <mat-error *ngIf="f['password'].hasError('minlength')">
+              Password must be at least 8 characters
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Admin Key Field -->
+          <mat-form-field appearance="outline" class="full-width admin-key-field">
+            <mat-label>Administrator Key</mat-label>
+            <input matInput [type]="hideAdminKey ? 'password' : 'text'" formControlName="admin_key" placeholder="Enter secret admin key">
+            <mat-icon matPrefix class="input-icon key-icon">vpn_key</mat-icon>
+            <button mat-icon-button matSuffix (click)="hideAdminKey = !hideAdminKey" type="button" tabindex="-1">
+              <mat-icon class="visibility-icon">{{hideAdminKey ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            <mat-error *ngIf="f['admin_key'].hasError('required')">
+              Admin key is required
+            </mat-error>
+            <mat-hint>This key is provided by the system administrator</mat-hint>
+          </mat-form-field>
+
+          <!-- Register Button -->
+          <button mat-raised-button color="warn" type="submit" [disabled]="loading" class="admin-register-button">
+            <mat-icon *ngIf="!loading">shield</mat-icon>
+            <span *ngIf="!loading">CREATE ADMIN ACCOUNT</span>
+            <span *ngIf="loading">
+              <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+              Creating...
+            </span>
+          </button>
+
+          <!-- Back to Login -->
+          <div class="back-link">
+            <a routerLink="/login" mat-button>
+              <mat-icon>arrow_back</mat-icon>
+              Back to Login
+            </a>
+          </div>
+        </form>
+
+        <!-- Security Features -->
+        <div class="security-features">
+          <div class="feature-item">
+            <mat-icon>verified_user</mat-icon>
+            <span>Encrypted Connection</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>lock</mat-icon>
+            <span>Secure Storage</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>privacy_tip</mat-icon>
+            <span>Protected Access</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Admin Registration Wrapper */
+.admin-register-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 50%, #2196f3 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header Text */
+.header-text {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  z-index: 1;
+}
+
+.header-text h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.header-text p {
+  font-size: 16px;
+  font-weight: 300;
+  margin: 0;
+  opacity: 0.95;
+}
+
+/* Main Container */
+.admin-register-container {
+  display: flex;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  max-width: 1000px;
+  width: 100%;
+  min-height: 580px;
+  z-index: 1;
+}
+
+/* Logo Section - Left Side */
+.logo-section {
+  flex: 1;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 60px 40px;
+}
+
+.warning-circle {
+  border: 4px solid #1976d2;
+}
+
+.logo-circle {
+  width: 320px;
+  height: 320px;
+  background: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  position: relative;
+  z-index: 2;
+}
+
+.admin-placeholder {
+  background: linear-gradient(135deg, #1565c0 0%, #2196f3 100%);
+}
+
+.logo-placeholder {
+  width: 240px;
+  height: 240px;
+  background: none;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logo-placeholder svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+.logo-text {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* Warning Badge */
+.warning-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(25, 118, 210, 0.1);
+  border: 2px solid #1976d2;
+  border-radius: 12px;
+  padding: 16px 20px;
+  color: #1565c0;
+  z-index: 2;
+  max-width: 280px;
+}
+
+.warning-badge mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #1976d2;
+}
+
+.warning-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.warning-text strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.warning-text span {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Decorative Elements */
+.decoration {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.1;
+}
+
+.decoration-1 {
+  width: 150px;
+  height: 150px;
+  background: #1976d2;
+  top: 10%;
+  left: 5%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.decoration-2 {
+  width: 100px;
+  height: 100px;
+  background: #2196f3;
+  bottom: 10%;
+  right: 10%;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+.decoration-3 {
+  width: 80px;
+  height: 80px;
+  background: #1976d2;
+  top: 50%;
+  right: 5%;
+  animation: float 7s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Form Section - Right Side */
+.form-section {
+  flex: 1;
+  padding: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.form-content {
+  width: 100%;
+  max-width: 420px;
+}
+
+.admin-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.admin-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #1976d2;
+  margin-bottom: 16px;
+}
+
+.form-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 8px 0;
+}
+
+.form-subtitle {
+  font-size: 14px;
+  color: #718096;
+  margin: 0;
+}
+
+/* Alerts */
+.success-alert, .error-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.success-alert {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.error-alert {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+}
+
+.success-alert mat-icon,
+.error-alert mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Info Box */
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 24px;
+  color: #0d47a1;
+  font-size: 13px;
+}
+
+.info-box mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-text strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Form Fields */
+.full-width {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.admin-key-field {
+  background: #e8f4f8;
+  border-radius: 8px;
+}
+
+::ng-deep .mat-mdc-form-field {
+  font-size: 14px;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+  background: #f7fafc;
+}
+
+::ng-deep .admin-key-field .mat-mdc-text-field-wrapper {
+  background: #e3f2fd;
+}
+
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline__leading,
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline__notch,
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline__trailing {
+  border-color: #e2e8f0 !important;
+}
+
+::ng-deep .admin-key-field .mdc-notched-outline__leading,
+::ng-deep .admin-key-field .mdc-notched-outline__notch,
+::ng-deep .admin-key-field .mdc-notched-outline__trailing {
+  border-color: #90caf9 !important;
+}
+
+.input-icon {
+  color: #a0aec0;
+  margin-right: 8px;
+}
+
+.key-icon {
+  color: #1976d2;
+}
+
+.visibility-icon {
+  color: #a0aec0;
+}
+
+/* Admin Register Button */
+.admin-register-button {
+  width: 100%;
+  height: 52px;
+  background: linear-gradient(135deg, #1565c0 0%, #2196f3 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 1px;
+  border-radius: 26px;
+  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.4);
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.admin-register-button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.admin-register-button:hover:not([disabled]) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.6);
+}
+
+.admin-register-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+::ng-deep .button-spinner circle {
+  stroke: white;
+}
+
+/* Back Link */
+.back-link {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.back-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #667eea;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.back-link a:hover {
+  color: #764ba2;
+}
+
+.back-link mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Security Features */
+.security-features {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.feature-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #718096;
+  font-size: 11px;
+  text-align: center;
+}
+
+.feature-item mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: #cbd5e0;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .admin-register-container {
+    flex-direction: column;
+    max-width: 550px;
+  }
+
+  .logo-section {
+    padding: 40px 30px;
+    min-height: 320px;
+  }
+
+  .logo-circle {
+    width: 200px;
+    height: 200px;
+    margin-bottom: 20px;
+  }
+
+  .logo-placeholder {
+    width: 150px;
+    height: 150px;
+  }
+
+  .logo-placeholder svg {
+    width: 60px;
+    height: 60px;
+  }
+
+  .logo-text {
+    font-size: 28px;
+  }
+
+  .warning-badge {
+    max-width: 250px;
+  }
+
+  .form-section {
+    padding: 40px 30px;
+  }
+
+  .header-text h1 {
+    font-size: 26px;
+  }
+
+  .header-text p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-register-wrapper {
+    padding: 10px;
+  }
+
+  .form-section {
+    padding: 30px 20px;
+  }
+
+  .security-features {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+</style>

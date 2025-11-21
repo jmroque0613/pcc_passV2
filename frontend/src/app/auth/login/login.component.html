@@ -1,0 +1,466 @@
+<!-- src/app/auth/login/login.component.html -->
+<div class="login-wrapper">
+  <!-- Top Header -->
+  <div class="header-text">
+    <h1>Philippine Cancer Center</h1>
+    <p>Personnel and Supplies System</p>
+  </div>
+
+  <!-- Main Login Container -->
+  <div class="login-container">
+    <!-- Left Side - Logo -->
+    <div class="logo-section">
+      <div class="logo-circle">
+        <div class="logo-placeholder">
+          <!-- Replace with actual logo -->
+            <img src="assets/images/pcc_logo.png" alt="PCC Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+      </div>
+      
+      <!-- Decorative Elements -->
+      <div class="decoration decoration-1"></div>
+      <div class="decoration decoration-2"></div>
+      <div class="decoration decoration-3"></div>
+      <div class="decoration decoration-4"></div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="form-section">
+      <div class="form-content">
+        <h2 class="form-title">Member Login</h2>
+        
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="error-alert">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <!-- Email Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="Enter your email">
+            <mat-icon matPrefix class="input-icon">mail_outline</mat-icon>
+            <mat-error *ngIf="f['email'].hasError('required')">Email is required</mat-error>
+            <mat-error *ngIf="f['email'].hasError('email')">Invalid email format</mat-error>
+          </mat-form-field>
+
+          <!-- Password Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Enter your password">
+            <mat-icon matPrefix class="input-icon">lock_outline</mat-icon>
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" tabindex="-1">
+              <mat-icon class="visibility-icon">{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            <mat-error *ngIf="f['password'].hasError('required')">Password is required</mat-error>
+          </mat-form-field>
+
+          <!-- Forgot Password Link -->
+          <div class="forgot-password">
+            <a href="javascript:void(0)">Forgot Username / Password?</a>
+          </div>
+
+          <!-- Login Button -->
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading" class="login-button">
+            <span *ngIf="!loading">LOGIN</span>
+            <span *ngIf="loading">
+              <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+              Signing in...
+            </span>
+          </button>
+
+          <!-- Create Account Link -->
+          <div class="create-account">
+            <span>Create your Account</span>
+            <a routerLink="/register">→</a>
+          </div>
+
+          <!-- Admin Link (Hidden) -->
+          <div class="admin-access">
+            <a routerLink="/admin-register">Admin Access</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Login Wrapper */
+.login-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header Text */
+.header-text {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  z-index: 1;
+}
+
+.header-text h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.5px;
+}
+
+.header-text p {
+  font-size: 16px;
+  font-weight: 300;
+  margin: 0;
+  opacity: 0.95;
+}
+
+/* Main Container */
+.login-container {
+  display: flex;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 1000px;
+  width: 100%;
+  min-height: 550px;
+  z-index: 1;
+}
+
+/* Logo Section - Left Side */
+.logo-section {
+  flex: 1;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 60px;
+}
+
+.logo-circle {
+  width: 320px;
+  height: 320px;
+  background: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  position: relative;
+  z-index: 2;
+}
+
+.logo-placeholder {
+  width: 240px;
+  height: 240px;
+  background: none;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logo-placeholder svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+.logo-text {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* Decorative Elements */
+.decoration {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.15;
+}
+
+.decoration-1 {
+  width: 150px;
+  height: 150px;
+  background: #667eea;
+  top: 10%;
+  left: 10%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.decoration-2 {
+  width: 100px;
+  height: 100px;
+  background: #764ba2;
+  bottom: 15%;
+  right: 15%;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+.decoration-3 {
+  width: 80px;
+  height: 80px;
+  background: #667eea;
+  top: 60%;
+  left: 5%;
+  animation: float 7s ease-in-out infinite;
+}
+
+.decoration-4 {
+  width: 60px;
+  height: 60px;
+  background: #764ba2;
+  top: 20%;
+  right: 10%;
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Form Section - Right Side */
+.form-section {
+  flex: 1;
+  padding: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.form-content {
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 30px 0;
+  text-align: left;
+}
+
+/* Error Alert */
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  color: #c33;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.error-alert mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Form Fields */
+.full-width {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+::ng-deep .mat-mdc-form-field {
+  font-size: 14px;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+  background: #f7fafc;
+}
+
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline__leading,
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline__notch,
+::ng-deep .mdc-text-field--outlined .mdc-notched-outline__trailing {
+  border-color: #e2e8f0 !important;
+}
+
+::ng-deep .mat-mdc-form-field-focus-overlay {
+  background-color: transparent;
+}
+
+.input-icon {
+  color: #a0aec0;
+  margin-right: 8px;
+}
+
+.visibility-icon {
+  color: #a0aec0;
+}
+
+/* Forgot Password */
+.forgot-password {
+  text-align: right;
+  margin-bottom: 24px;
+}
+
+.forgot-password a {
+  color: #667eea;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* Login Button */
+.login-button {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 1px;
+  border-radius: 24px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.login-button:hover:not([disabled]) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+::ng-deep .button-spinner circle {
+  stroke: white;
+}
+
+/* Create Account */
+.create-account {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.create-account span {
+  color: #718096;
+  font-size: 14px;
+}
+
+.create-account a {
+  color: #667eea;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.create-account a:hover {
+  transform: translateX(4px);
+}
+
+/* Admin Access */
+.admin-access {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.admin-access a {
+  color: #cbd5e0;
+  font-size: 12px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.admin-access a:hover {
+  color: #a0aec0;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .login-container {
+    flex-direction: column;
+    max-width: 500px;
+  }
+
+  .logo-section {
+    padding: 40px;
+    min-height: 300px;
+  }
+
+  .logo-circle {
+    width: 200px;
+    height: 200px;
+  }
+
+  .logo-placeholder {
+    width: 150px;
+    height: 150px;
+  }
+
+  .logo-placeholder svg {
+    width: 50px;
+    height: 50px;
+  }
+
+  .logo-text {
+    font-size: 32px;
+  }
+
+  .form-section {
+    padding: 40px 30px;
+  }
+
+  .header-text h1 {
+    font-size: 24px;
+  }
+
+  .header-text p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-wrapper {
+    padding: 10px;
+  }
+
+  .form-section {
+    padding: 30px 20px;
+  }
+
+  .header-text h1 {
+    font-size: 20px;
+  }
+}
+</style>
