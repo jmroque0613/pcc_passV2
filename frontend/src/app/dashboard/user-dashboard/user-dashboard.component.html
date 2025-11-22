@@ -75,327 +75,360 @@
     </header>
 
     <!-- Dashboard Content -->
-    <div class="content-area" *ngIf="activePage === 'dashboard'" [style]="getStyles('contentArea')">
-      <!-- Welcome Section -->
-      <div class="welcome-card" [style]="getStyles('welcomeCard')">
-        <div class="welcome-content">
-          <h1 [style]="getStyles('welcomeTitle')">Welcome back, {{ currentUser?.first_name }}! 👋</h1>
-          <p [style]="getStyles('welcomeText')">Here's what's happening with your account today.</p>
+    @if (activePage === 'dashboard') {
+      <div class="content-area" [style]="getStyles('contentArea')">
+        <!-- Welcome Section -->
+        <div class="welcome-card" [style]="getStyles('welcomeCard')">
+          <div class="welcome-content">
+            <h1 [style]="getStyles('welcomeTitle')">Welcome back, {{ currentUser?.first_name }}! 👋</h1>
+            <p [style]="getStyles('welcomeText')">Here's what's happening with your account today.</p>
+          </div>
+          <div class="welcome-date" [style]="getStyles('welcomeDate')">
+            <mat-icon>calendar_today</mat-icon>
+            <span>{{ currentDate | date: 'MMMM d, y' }}</span>
+          </div>
         </div>
-        <div class="welcome-date" [style]="getStyles('welcomeDate')">
-          <mat-icon>calendar_today</mat-icon>
-          <span>{{ currentDate | date: 'MMMM d, y' }}</span>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" [style]="getStyles('statsGrid')">
+          <div class="stat-card purple" [style]="getStyles('statCard', 'purple')">
+            <div class="stat-icon" [style]="getStyles('statIcon', 'purple')">
+              <mat-icon [style]="getStyles('statIconMat')">folder_open</mat-icon>
+            </div>
+            <div class="stat-details" [style]="getStyles('statDetails')">
+              <div class="stat-value" [style]="getStyles('statValue')">{{ hrFilesCount }}</div>
+              <div class="stat-label" [style]="getStyles('statLabel')">HR Files</div>
+            </div>
+            <div class="stat-chart" [style]="getStyles('statChart', 'purple')">
+              <svg viewBox="0 0 100 40">
+                <path d="M 0 30 Q 25 20, 50 25 T 100 15" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="stat-card blue" [style]="getStyles('statCard', 'blue')">
+            <div class="stat-icon" [style]="getStyles('statIcon', 'blue')">
+              <mat-icon [style]="getStyles('statIconMat')">computer</mat-icon>
+            </div>
+            <div class="stat-details" [style]="getStyles('statDetails')">
+              <div class="stat-value" [style]="getStyles('statValue')">{{ equipmentCount }}</div>
+              <div class="stat-label" [style]="getStyles('statLabel')">IT Equipment</div>
+            </div>
+            <div class="stat-chart" [style]="getStyles('statChart', 'blue')">
+              <svg viewBox="0 0 100 40">
+                <path d="M 0 25 Q 25 15, 50 20 T 100 10" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="stat-card orange" [style]="getStyles('statCard', 'orange')">
+            <div class="stat-icon" [style]="getStyles('statIcon', 'orange')">
+              <mat-icon [style]="getStyles('statIconMat')">chair</mat-icon>
+            </div>
+            <div class="stat-details" [style]="getStyles('statDetails')">
+              <div class="stat-value" [style]="getStyles('statValue')">{{ furnitureCount }}</div>
+              <div class="stat-label" [style]="getStyles('statLabel')">Furnitures</div>
+            </div>
+            <div class="stat-chart" [style]="getStyles('statChart', 'orange')">
+              <svg viewBox="0 0 100 40">
+                <path d="M 0 20 Q 25 25, 50 18 T 100 22" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent HR Files and Equipment -->
+        <div class="dashboard-grid" [style]="getStyles('dashboardGrid')">
+          <!-- Recent HR Files -->
+          <div class="dashboard-card" [style]="getStyles('dashboardCard')">
+            <div class="card-header" [style]="getStyles('cardHeader')">
+              <h3 [style]="getStyles('cardTitle')">
+                <mat-icon>description</mat-icon>
+                Recent HR Files
+              </h3>
+              <a href="#" [style]="getStyles('cardLink')" (click)="activePage = 'hr-files'; $event.preventDefault()">View All</a>
+            </div>
+            <div class="card-content" [style]="getStyles('cardContent')">
+              <div class="file-list" [style]="getStyles('fileList')">
+                @for (file of recentHRFiles; track file.id) {
+                  <div class="file-item" [style]="getStyles('fileItem')">
+                    <div class="file-icon" [style]="getStyles('fileIcon')">
+                      <mat-icon>insert_drive_file</mat-icon>
+                    </div>
+                    <div class="file-info" [style]="getStyles('fileInfo')">
+                      <div class="file-name" [style]="getStyles('fileName')">{{ file.file_name }}</div>
+                      <div class="file-meta" [style]="getStyles('fileMeta')">{{ file.uploaded_at | date: 'MMM d, y' }}</div>
+                    </div>
+                    <button mat-icon-button color="primary">
+                      <mat-icon>download</mat-icon>
+                    </button>
+                  </div>
+                }
+                @if (recentHRFiles.length === 0) {
+                  <div class="empty-state" [style]="getStyles('emptyState')">
+                    <mat-icon [style]="getStyles('emptyIcon')">folder_open</mat-icon>
+                    <p [style]="getStyles('emptyText')">No HR files yet</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- IT Equipment Summary -->
+          <div class="dashboard-card" [style]="getStyles('dashboardCard')">
+            <div class="card-header" [style]="getStyles('cardHeader')">
+              <h3 [style]="getStyles('cardTitle')">
+                <mat-icon>devices</mat-icon>
+                IT Equipment
+              </h3>
+              <a href="#" [style]="getStyles('cardLink')" (click)="activePage = 'equipment'; $event.preventDefault()">View All</a>
+            </div>
+            <div class="card-content" [style]="getStyles('cardContent')">
+              <div class="equipment-summary" [style]="getStyles('equipmentSummary')">
+                @for (type of equipmentByType; track type.type) {
+                  <div class="equipment-type" [style]="getStyles('equipmentType')">
+                    <div class="type-info" [style]="getStyles('typeInfo')">
+                      <mat-icon>{{ getEquipmentIcon(type.type) }}</mat-icon>
+                      <span>{{ type.type }}</span>
+                    </div>
+                    <div class="type-count" [style]="getStyles('typeCount')">{{ type.count }}</div>
+                  </div>
+                }
+                @if (equipmentByType.length === 0) {
+                  <div class="empty-state" [style]="getStyles('emptyState')">
+                    <mat-icon [style]="getStyles('emptyIcon')">computer</mat-icon>
+                    <p [style]="getStyles('emptyText')">No equipment assigned</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="profile-card" [style]="getStyles('profileCard')">
+          <div class="profile-header" [style]="getStyles('profileHeader')">
+            <h3 [style]="getStyles('profileTitle')">Profile Information</h3>
+            <button mat-button color="primary">Edit</button>
+          </div>
+          <div class="profile-grid" [style]="getStyles('profileGrid')">
+            <div class="profile-item" [style]="getStyles('profileItem')">
+              <mat-icon [style]="getStyles('profileIcon')">person</mat-icon>
+              <div class="profile-info" [style]="getStyles('profileInfo')">
+                <div class="info-label" [style]="getStyles('infoLabel')">Full Name</div>
+                <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.first_name }} {{ currentUser?.middle_name }} {{ currentUser?.surname }}</div>
+              </div>
+            </div>
+            <div class="profile-item" [style]="getStyles('profileItem')">
+              <mat-icon [style]="getStyles('profileIcon')">email</mat-icon>
+              <div class="profile-info" [style]="getStyles('profileInfo')">
+                <div class="info-label" [style]="getStyles('infoLabel')">Email</div>
+                <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.email }}</div>
+              </div>
+            </div>
+            <div class="profile-item" [style]="getStyles('profileItem')">
+              <mat-icon [style]="getStyles('profileIcon')">work</mat-icon>
+              <div class="profile-info" [style]="getStyles('profileInfo')">
+                <div class="info-label" [style]="getStyles('infoLabel')">Position</div>
+                <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.position }}</div>
+              </div>
+            </div>
+            <div class="profile-item" [style]="getStyles('profileItem')">
+              <mat-icon [style]="getStyles('profileIcon')">business</mat-icon>
+              <div class="profile-info" [style]="getStyles('profileInfo')">
+                <div class="info-label" [style]="getStyles('infoLabel')">Unit/Division</div>
+                <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.assigned_unit }}</div>
+              </div>
+            </div>
+            <div class="profile-item" [style]="getStyles('profileItem')">
+              <mat-icon [style]="getStyles('profileIcon')">badge</mat-icon>
+              <div class="profile-info" [style]="getStyles('profileInfo')">
+                <div class="info-label" [style]="getStyles('infoLabel')">Salary Grade</div>
+                <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.salary_grade }}</div>
+              </div>
+            </div>
+            <div class="profile-item" [style]="getStyles('profileItem')">
+              <mat-icon [style]="getStyles('profileIcon')">event</mat-icon>
+              <div class="profile-info" [style]="getStyles('profileInfo')">
+                <div class="info-label" [style]="getStyles('infoLabel')">Starting Date</div>
+                <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.starting_date | date: 'MMMM d, y' }}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    }
 
-      <!-- Stats Cards -->
-      <div class="stats-grid" [style]="getStyles('statsGrid')">
-        <div class="stat-card purple" [style]="getStyles('statCard', 'purple')">
-          <div class="stat-icon" [style]="getStyles('statIcon', 'purple')">
-            <mat-icon [style]="getStyles('statIconMat')">folder_open</mat-icon>
-          </div>
-          <div class="stat-details" [style]="getStyles('statDetails')">
-            <div class="stat-value" [style]="getStyles('statValue')">{{ hrFilesCount }}</div>
-            <div class="stat-label" [style]="getStyles('statLabel')">HR Files</div>
-          </div>
-          <div class="stat-chart" [style]="getStyles('statChart', 'purple')">
-            <svg viewBox="0 0 100 40">
-              <path d="M 0 30 Q 25 20, 50 25 T 100 15" fill="none" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </div>
+    <!-- IT Equipment Page -->
+    @if (activePage === 'equipment') {
+      <div class="content-area" [style]="getStyles('contentArea')">
+        <div class="page-header" [style]="getStyles('pageHeader')">
+          <h2 [style]="getStyles('pageTitle')">IT Equipment</h2>
+          <p [style]="getStyles('pageSubtitle')">View all equipment assigned to you</p>
         </div>
 
-        <div class="stat-card blue" [style]="getStyles('statCard', 'blue')">
-          <div class="stat-icon" [style]="getStyles('statIcon', 'blue')">
-            <mat-icon [style]="getStyles('statIconMat')">computer</mat-icon>
-          </div>
-          <div class="stat-details" [style]="getStyles('statDetails')">
-            <div class="stat-value" [style]="getStyles('statValue')">{{ equipmentCount }}</div>
-            <div class="stat-label" [style]="getStyles('statLabel')">IT Equipment</div>
-          </div>
-          <div class="stat-chart" [style]="getStyles('statChart', 'blue')">
-            <svg viewBox="0 0 100 40">
-              <path d="M 0 25 Q 25 15, 50 20 T 100 10" fill="none" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </div>
-        </div>
+        <div class="table-card" [style]="getStyles('tableCard')">
+          <table mat-table [dataSource]="equipmentList" class="equipment-table">
+            <!-- Property Number Column -->
+            <ng-container matColumnDef="property_number">
+              <th mat-header-cell *matHeaderCellDef>Property Number</th>
+              <td mat-cell *matCellDef="let element">{{ element.property_number }}</td>
+            </ng-container>
 
-        <div class="stat-card orange" [style]="getStyles('statCard', 'orange')">
-          <div class="stat-icon" [style]="getStyles('statIcon', 'orange')">
-            <mat-icon [style]="getStyles('statIconMat')">chair</mat-icon>
-          </div>
-          <div class="stat-details" [style]="getStyles('statDetails')">
-            <div class="stat-value" [style]="getStyles('statValue')">{{ furnitureCount }}</div>
-            <div class="stat-label" [style]="getStyles('statLabel')">Furnitures</div>
-          </div>
-          <div class="stat-chart" [style]="getStyles('statChart', 'orange')">
-            <svg viewBox="0 0 100 40">
-              <path d="M 0 20 Q 25 25, 50 18 T 100 22" fill="none" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </div>
+            <!-- GSD Code Column -->
+            <ng-container matColumnDef="gsd_code">
+              <th mat-header-cell *matHeaderCellDef>GSD Code</th>
+              <td mat-cell *matCellDef="let element">{{ element.gsd_code }}</td>
+            </ng-container>
+
+            <!-- Equipment Type Column -->
+            <ng-container matColumnDef="equipment_type">
+              <th mat-header-cell *matHeaderCellDef>Type of Equipment</th>
+              <td mat-cell *matCellDef="let element">
+                <span class="equipment-badge" [style]="getStyles('equipmentBadge')">{{ element.equipment_type }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Brand Column -->
+            <ng-container matColumnDef="brand">
+              <th mat-header-cell *matHeaderCellDef>Brand</th>
+              <td mat-cell *matCellDef="let element">{{ element.brand }}</td>
+            </ng-container>
+
+            <!-- Model Column -->
+            <ng-container matColumnDef="model">
+              <th mat-header-cell *matHeaderCellDef>Model</th>
+              <td mat-cell *matCellDef="let element">{{ element.model }}</td>
+            </ng-container>
+
+            <!-- Date Received Column -->
+            <ng-container matColumnDef="assigned_date">
+              <th mat-header-cell *matHeaderCellDef>Date Received</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.assigned_date ? (element.assigned_date | date: 'MMM d, y') : 'N/A' }}
+              </td>
+            </ng-container>
+
+            <!-- Previous Recipient Column -->
+            <ng-container matColumnDef="previous_recipient">
+              <th mat-header-cell *matHeaderCellDef>Prev. Recipient</th>
+              <td mat-cell *matCellDef="let element">{{ element.previous_recipient || 'N/A' }}</td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>PAR Document</th>
+              <td mat-cell *matCellDef="let element">
+                @if (element.par_file_path) {
+                  <button mat-raised-button color="primary" (click)="downloadPAR(element.id)">
+                    <mat-icon>download</mat-icon>
+                    Download
+                  </button>
+                } @else {
+                  <span [style]="getStyles('noPar')">No PAR Available</span>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="equipmentColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: equipmentColumns;"></tr>
+          </table>
+
+          @if (equipmentList.length === 0 && !loading) {
+            <div class="empty-state" [style]="getStyles('emptyState')">
+              <mat-icon [style]="getStyles('emptyIcon')">computer</mat-icon>
+              <h3 [style]="getStyles('emptyTitle')">No Equipment Assigned</h3>
+              <p [style]="getStyles('emptyText')">You don't have any IT equipment assigned yet.</p>
+            </div>
+          }
+
+          @if (loading) {
+            <div class="loading-container" [style]="'text-align: center; padding: 60px 20px;'">
+              <mat-spinner diameter="50"></mat-spinner>
+              <p [style]="'margin-top: 20px; color: #6b7280;'">Loading equipment...</p>
+            </div>
+          }
         </div>
       </div>
+    }
 
-      <!-- Recent HR Files and Equipment -->
-      <div class="dashboard-grid" [style]="getStyles('dashboardGrid')">
-        <!-- Recent HR Files -->
-        <div class="dashboard-card" [style]="getStyles('dashboardCard')">
-          <div class="card-header" [style]="getStyles('cardHeader')">
-            <h3 [style]="getStyles('cardTitle')">
-              <mat-icon>description</mat-icon>
-              Recent HR Files
-            </h3>
-            <a href="#" [style]="getStyles('cardLink')" (click)="activePage = 'hr-files'; $event.preventDefault()">View All</a>
-          </div>
-          <div class="card-content" [style]="getStyles('cardContent')">
-            <div class="file-list" [style]="getStyles('fileList')">
-              <div class="file-item" *ngFor="let file of recentHRFiles" [style]="getStyles('fileItem')">
-                <div class="file-icon" [style]="getStyles('fileIcon')">
-                  <mat-icon>insert_drive_file</mat-icon>
+    <!-- HR Files Page -->
+    @if (activePage === 'hr-files') {
+      <div class="content-area" [style]="getStyles('contentArea')">
+        <div class="page-header" [style]="getStyles('pageHeader')">
+          <h2 [style]="getStyles('pageTitle')">HR Files</h2>
+          <p [style]="getStyles('pageSubtitle')">Access your HR documents</p>
+        </div>
+
+        <div class="table-card" [style]="getStyles('tableCard')">
+          <div class="file-grid" [style]="getStyles('fileGrid')">
+            @for (file of hrFilesList; track file.id) {
+              <div class="file-card" [style]="getStyles('fileCard')">
+                <div class="file-card-icon" [style]="getStyles('fileCardIcon')">
+                  <mat-icon [style]="getStyles('fileCardIconMat')">description</mat-icon>
                 </div>
-                <div class="file-info" [style]="getStyles('fileInfo')">
-                  <div class="file-name" [style]="getStyles('fileName')">{{ file.file_name }}</div>
-                  <div class="file-meta" [style]="getStyles('fileMeta')">{{ file.uploaded_at | date: 'MMM d, y' }}</div>
+                <div class="file-card-info" [style]="getStyles('fileCardInfo')">
+                  <h4 [style]="getStyles('fileCardTitle')">{{ file.file_name }}</h4>
+                  <p [style]="getStyles('fileCardType')">{{ file.file_type }}</p>
+                  <span class="file-date" [style]="getStyles('fileDate')">{{ file.uploaded_at | date: 'MMM d, y' }}</span>
                 </div>
-                <button mat-icon-button color="primary">
+                <button mat-icon-button color="primary" (click)="downloadFile(file.id)">
                   <mat-icon>download</mat-icon>
                 </button>
               </div>
-              <div class="empty-state" *ngIf="recentHRFiles.length === 0" [style]="getStyles('emptyState')">
-                <mat-icon [style]="getStyles('emptyIcon')">folder_open</mat-icon>
-                <p [style]="getStyles('emptyText')">No HR files yet</p>
-              </div>
-            </div>
+            }
           </div>
-        </div>
 
-        <!-- IT Equipment Summary -->
-        <div class="dashboard-card" [style]="getStyles('dashboardCard')">
-          <div class="card-header" [style]="getStyles('cardHeader')">
-            <h3 [style]="getStyles('cardTitle')">
-              <mat-icon>devices</mat-icon>
-              IT Equipment
-            </h3>
-            <a href="#" [style]="getStyles('cardLink')" (click)="activePage = 'equipment'; $event.preventDefault()">View All</a>
-          </div>
-          <div class="card-content" [style]="getStyles('cardContent')">
-            <div class="equipment-summary" [style]="getStyles('equipmentSummary')">
-              <div class="equipment-type" *ngFor="let type of equipmentByType" [style]="getStyles('equipmentType')">
-                <div class="type-info" [style]="getStyles('typeInfo')">
-                  <mat-icon>{{ getEquipmentIcon(type.type) }}</mat-icon>
-                  <span>{{ type.type }}</span>
-                </div>
-                <div class="type-count" [style]="getStyles('typeCount')">{{ type.count }}</div>
-              </div>
-              <div class="empty-state" *ngIf="equipmentByType.length === 0" [style]="getStyles('emptyState')">
-                <mat-icon [style]="getStyles('emptyIcon')">computer</mat-icon>
-                <p [style]="getStyles('emptyText')">No equipment assigned</p>
-              </div>
+          @if (hrFilesList.length === 0) {
+            <div class="empty-state" [style]="getStyles('emptyState')">
+              <mat-icon [style]="getStyles('emptyIcon')">folder_open</mat-icon>
+              <h3 [style]="getStyles('emptyTitle')">No HR Files</h3>
+              <p [style]="getStyles('emptyText')">Your HR files will appear here once uploaded by admin.</p>
             </div>
-          </div>
+          }
         </div>
       </div>
-
-      <!-- Profile Information -->
-      <div class="profile-card" [style]="getStyles('profileCard')">
-        <div class="profile-header" [style]="getStyles('profileHeader')">
-          <h3 [style]="getStyles('profileTitle')">Profile Information</h3>
-          <button mat-button color="primary">Edit</button>
-        </div>
-        <div class="profile-grid" [style]="getStyles('profileGrid')">
-          <div class="profile-item" [style]="getStyles('profileItem')">
-            <mat-icon [style]="getStyles('profileIcon')">person</mat-icon>
-            <div class="profile-info" [style]="getStyles('profileInfo')">
-              <div class="info-label" [style]="getStyles('infoLabel')">Full Name</div>
-              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.first_name }} {{ currentUser?.middle_name }} {{ currentUser?.surname }}</div>
-            </div>
-          </div>
-          <div class="profile-item" [style]="getStyles('profileItem')">
-            <mat-icon [style]="getStyles('profileIcon')">email</mat-icon>
-            <div class="profile-info" [style]="getStyles('profileInfo')">
-              <div class="info-label" [style]="getStyles('infoLabel')">Email</div>
-              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.email }}</div>
-            </div>
-          </div>
-          <div class="profile-item" [style]="getStyles('profileItem')">
-            <mat-icon [style]="getStyles('profileIcon')">work</mat-icon>
-            <div class="profile-info" [style]="getStyles('profileInfo')">
-              <div class="info-label" [style]="getStyles('infoLabel')">Position</div>
-              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.position }}</div>
-            </div>
-          </div>
-          <div class="profile-item" [style]="getStyles('profileItem')">
-            <mat-icon [style]="getStyles('profileIcon')">business</mat-icon>
-            <div class="profile-info" [style]="getStyles('profileInfo')">
-              <div class="info-label" [style]="getStyles('infoLabel')">Unit/Division</div>
-              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.assigned_unit }}</div>
-            </div>
-          </div>
-          <div class="profile-item" [style]="getStyles('profileItem')">
-            <mat-icon [style]="getStyles('profileIcon')">badge</mat-icon>
-            <div class="profile-info" [style]="getStyles('profileInfo')">
-              <div class="info-label" [style]="getStyles('infoLabel')">Salary Grade</div>
-              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.salary_grade }}</div>
-            </div>
-          </div>
-          <div class="profile-item" [style]="getStyles('profileItem')">
-            <mat-icon [style]="getStyles('profileIcon')">event</mat-icon>
-            <div class="profile-info" [style]="getStyles('profileInfo')">
-              <div class="info-label" [style]="getStyles('infoLabel')">Starting Date</div>
-              <div class="info-value" [style]="getStyles('infoValue')">{{ currentUser?.starting_date | date: 'MMMM d, y' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- IT Equipment Page -->
-    <div class="content-area" *ngIf="activePage === 'equipment'" [style]="getStyles('contentArea')">
-    <div class="page-header" [style]="getStyles('pageHeader')">
-        <h2 [style]="getStyles('pageTitle')">IT Equipment</h2>
-        <p [style]="getStyles('pageSubtitle')">View all equipment assigned to you</p>
-    </div>
-
-    <div class="table-card" [style]="getStyles('tableCard')">
-        <table mat-table [dataSource]="equipmentList" class="equipment-table">
-        <!-- Property Number Column -->
-        <ng-container matColumnDef="property_number">
-            <th mat-header-cell *matHeaderCellDef>Property Number</th>
-            <td mat-cell *matCellDef="let element">{{ element.property_number }}</td>
-        </ng-container>
-
-        <!-- GSD Code Column -->
-        <ng-container matColumnDef="gsd_code">
-            <th mat-header-cell *matHeaderCellDef>GSD Code</th>
-            <td mat-cell *matCellDef="let element">{{ element.gsd_code }}</td>
-        </ng-container>
-
-        <!-- Equipment Type Column -->
-        <ng-container matColumnDef="equipment_type">
-            <th mat-header-cell *matHeaderCellDef>Type of Equipment</th>
-            <td mat-cell *matCellDef="let element">
-            <span class="equipment-badge" [style]="getStyles('equipmentBadge')">{{ element.equipment_type }}</span>
-            </td>
-        </ng-container>
-
-        <!-- Brand Column -->
-        <ng-container matColumnDef="brand">
-            <th mat-header-cell *matHeaderCellDef>Brand</th>
-            <td mat-cell *matCellDef="let element">{{ element.brand }}</td>
-        </ng-container>
-
-        <!-- Model Column -->
-        <ng-container matColumnDef="model">
-            <th mat-header-cell *matHeaderCellDef>Model</th>
-            <td mat-cell *matCellDef="let element">{{ element.model }}</td>
-        </ng-container>
-
-        <!-- Date Received Column -->
-        <ng-container matColumnDef="assigned_date">
-            <th mat-header-cell *matHeaderCellDef>Date Received</th>
-            <td mat-cell *matCellDef="let element">
-            {{ element.assigned_date ? (element.assigned_date | date: 'MMM d, y') : 'N/A' }}
-            </td>
-        </ng-container>
-
-        <!-- Previous Recipient Column -->
-        <ng-container matColumnDef="previous_recipient">
-            <th mat-header-cell *matHeaderCellDef>Prev. Recipient</th>
-            <td mat-cell *matCellDef="let element">{{ element.previous_recipient || 'N/A' }}</td>
-        </ng-container>
-
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>PAR Document</th>
-            <td mat-cell *matCellDef="let element">
-            <button mat-raised-button color="primary" (click)="downloadPAR(element.id)" *ngIf="element.par_file_path">
-                <mat-icon>download</mat-icon>
-                Download
-            </button>
-            <span *ngIf="!element.par_file_path" [style]="getStyles('noPar')">No PAR Available</span>
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="equipmentColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: equipmentColumns;"></tr>
-        </table>
-
-        <div class="empty-state" *ngIf="equipmentList.length === 0 && !loading" [style]="getStyles('emptyState')">
-        <mat-icon [style]="getStyles('emptyIcon')">computer</mat-icon>
-        <h3 [style]="getStyles('emptyTitle')">No Equipment Assigned</h3>
-        <p [style]="getStyles('emptyText')">You don't have any IT equipment assigned yet.</p>
-        </div>
-
-        <div class="loading-container" *ngIf="loading" [style]="'text-align: center; padding: 60px 20px;'">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p [style]="'margin-top: 20px; color: #6b7280;'">Loading equipment...</p>
-        </div>
-    </div>
-    </div>
-
-    <!-- HR Files Page -->
-    <div class="content-area" *ngIf="activePage === 'hr-files'" [style]="getStyles('contentArea')">
-      <div class="page-header" [style]="getStyles('pageHeader')">
-        <h2 [style]="getStyles('pageTitle')">HR Files</h2>
-        <p [style]="getStyles('pageSubtitle')">Access your HR documents</p>
-      </div>
-
-      <div class="table-card" [style]="getStyles('tableCard')">
-        <div class="file-grid" [style]="getStyles('fileGrid')">
-          <div class="file-card" *ngFor="let file of hrFilesList" [style]="getStyles('fileCard')">
-            <div class="file-card-icon" [style]="getStyles('fileCardIcon')">
-              <mat-icon [style]="getStyles('fileCardIconMat')">description</mat-icon>
-            </div>
-            <div class="file-card-info" [style]="getStyles('fileCardInfo')">
-              <h4 [style]="getStyles('fileCardTitle')">{{ file.file_name }}</h4>
-              <p [style]="getStyles('fileCardType')">{{ file.file_type }}</p>
-              <span class="file-date" [style]="getStyles('fileDate')">{{ file.uploaded_at | date: 'MMM d, y' }}</span>
-            </div>
-            <button mat-icon-button color="primary" (click)="downloadFile(file.id)">
-              <mat-icon>download</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <div class="empty-state" *ngIf="hrFilesList.length === 0" [style]="getStyles('emptyState')">
-          <mat-icon [style]="getStyles('emptyIcon')">folder_open</mat-icon>
-          <h3 [style]="getStyles('emptyTitle')">No HR Files</h3>
-          <p [style]="getStyles('emptyText')">Your HR files will appear here once uploaded by admin.</p>
-        </div>
-      </div>
-    </div>
+    }
 
     <!-- Furniture Page -->
-    <div class="content-area" *ngIf="activePage === 'furniture'" [style]="getStyles('contentArea')">
-      <div class="page-header" [style]="getStyles('pageHeader')">
-        <h2 [style]="getStyles('pageTitle')">Furnitures & Fixtures</h2>
-        <p [style]="getStyles('pageSubtitle')">View furniture assigned to you</p>
-      </div>
+    @if (activePage === 'furniture') {
+      <div class="content-area" [style]="getStyles('contentArea')">
+        <div class="page-header" [style]="getStyles('pageHeader')">
+          <h2 [style]="getStyles('pageTitle')">Furnitures & Fixtures</h2>
+          <p [style]="getStyles('pageSubtitle')">View furniture assigned to you</p>
+        </div>
 
-      <div class="table-card" [style]="getStyles('tableCard')">
-        <div class="furniture-grid" [style]="getStyles('furnitureGrid')">
-          <div class="furniture-card" *ngFor="let item of furnitureList" [style]="getStyles('furnitureCard')">
-            <div class="furniture-icon" [style]="getStyles('furnitureIcon')">
-              <mat-icon [style]="getStyles('furnitureIconMat')">{{ getFurnitureIcon(item.furniture_type) }}</mat-icon>
-            </div>
-            <div class="furniture-info" [style]="getStyles('furnitureInfo')">
-              <h4 [style]="getStyles('furnitureTitle')">{{ item.description }}</h4>
-              <p [style]="getStyles('furnitureType')">{{ item.furniture_type }}</p>
-              <span class="furniture-date" [style]="getStyles('furnitureDate')">Assigned: {{ item.assigned_date | date: 'MMM d, y' }}</span>
-            </div>
-            <button mat-raised-button color="primary" (click)="downloadFurniturePAR(item.id)" *ngIf="item.par_file_path">
-              <mat-icon>download</mat-icon>
-              PAR
-            </button>
+        <div class="table-card" [style]="getStyles('tableCard')">
+          <div class="furniture-grid" [style]="getStyles('furnitureGrid')">
+            @for (item of furnitureList; track item.id) {
+              <div class="furniture-card" [style]="getStyles('furnitureCard')">
+                <div class="furniture-icon" [style]="getStyles('furnitureIcon')">
+                  <mat-icon [style]="getStyles('furnitureIconMat')">{{ getFurnitureIcon(item.furniture_type) }}</mat-icon>
+                </div>
+                <div class="furniture-info" [style]="getStyles('furnitureInfo')">
+                  <h4 [style]="getStyles('furnitureTitle')">{{ item.description }}</h4>
+                  <p [style]="getStyles('furnitureType')">{{ item.furniture_type }}</p>
+                  <span class="furniture-date" [style]="getStyles('furnitureDate')">Assigned: {{ item.assigned_date | date: 'MMM d, y' }}</span>
+                </div>
+                @if (item.par_file_path && item.id) {
+                  <button mat-raised-button color="primary" (click)="downloadFurniturePAR(item.id)">
+                    <mat-icon>download</mat-icon>
+                    PAR
+                  </button>
+                }
+              </div>
+            }
           </div>
-        </div>
 
-        <div class="empty-state" *ngIf="furnitureList.length === 0" [style]="getStyles('emptyState')">
-          <mat-icon [style]="getStyles('emptyIcon')">chair</mat-icon>
-          <h3 [style]="getStyles('emptyTitle')">No Furniture Assigned</h3>
-          <p [style]="getStyles('emptyText')">You don't have any furniture assigned yet.</p>
+          @if (furnitureList.length === 0) {
+            <div class="empty-state" [style]="getStyles('emptyState')">
+              <mat-icon [style]="getStyles('emptyIcon')">chair</mat-icon>
+              <h3 [style]="getStyles('emptyTitle')">No Furniture Assigned</h3>
+              <p [style]="getStyles('emptyText')">You don't have any furniture assigned yet.</p>
+            </div>
+          }
         </div>
       </div>
-    </div>
+    }
   </main>
 </div>

@@ -16,7 +16,7 @@ from app.schemas.equipment_schema import (
 )
 from app.utils.dependencies import get_current_admin, get_current_user
 
-# INITIALIZE ROUTER - THIS WAS MISSING!
+# INITIALIZE ROUTER
 router = APIRouter(prefix="/api/furniture", tags=["Furniture"])
 
 # ============ USER ROUTES ============
@@ -24,13 +24,13 @@ router = APIRouter(prefix="/api/furniture", tags=["Furniture"])
 @router.get("/my-furniture", response_model=List[FurnitureResponseSchema])
 async def get_my_furniture(current_user: User = Depends(get_current_user)):
     """Get furniture assigned to current user - USER ACCESS"""
-    print(f"User requesting furniture: {current_user.email}, ID: {current_user.id}")
+    print(f"🔍 User requesting furniture: {current_user.email}, ID: {current_user.id}")
     
     furniture_list = await Furniture.find(
         Furniture.assigned_to_user_id == str(current_user.id)
     ).to_list()
     
-    print(f"Found {len(furniture_list)} furniture items for user")
+    print(f"✅ Found {len(furniture_list)} furniture items for user")
     
     return [
         FurnitureResponseSchema(
@@ -49,6 +49,7 @@ async def get_my_furniture(current_user: User = Depends(get_current_user)):
             assigned_to_user_id=fur.assigned_to_user_id,
             assigned_to_name=fur.assigned_to_name,
             assigned_date=fur.assigned_date,
+            assignment_type=fur.assignment_type,  # ADDED
             location=fur.location,
             condition=fur.condition,
             status=fur.status,
@@ -117,6 +118,7 @@ async def create_furniture(
         assigned_to_user_id=new_furniture.assigned_to_user_id,
         assigned_to_name=new_furniture.assigned_to_name,
         assigned_date=new_furniture.assigned_date,
+        assignment_type=new_furniture.assignment_type,  # ADDED
         location=new_furniture.location,
         condition=new_furniture.condition,
         status=new_furniture.status,
@@ -151,6 +153,7 @@ async def get_all_furniture(current_admin: User = Depends(get_current_admin)):
             assigned_to_user_id=fur.assigned_to_user_id,
             assigned_to_name=fur.assigned_to_name,
             assigned_date=fur.assigned_date,
+            assignment_type=fur.assignment_type,  # ADDED
             location=fur.location,
             condition=fur.condition,
             status=fur.status,
@@ -187,6 +190,7 @@ async def get_available_furniture(current_admin: User = Depends(get_current_admi
             assigned_to_user_id=fur.assigned_to_user_id,
             assigned_to_name=fur.assigned_to_name,
             assigned_date=fur.assigned_date,
+            assignment_type=fur.assignment_type,  # ADDED
             location=fur.location,
             condition=fur.condition,
             status=fur.status,
@@ -231,6 +235,7 @@ async def get_furniture(
         assigned_to_user_id=furniture.assigned_to_user_id,
         assigned_to_name=furniture.assigned_to_name,
         assigned_date=furniture.assigned_date,
+        assignment_type=furniture.assignment_type,  # ADDED
         location=furniture.location,
         condition=furniture.condition,
         status=furniture.status,
@@ -282,6 +287,7 @@ async def update_furniture(
         assigned_to_user_id=furniture.assigned_to_user_id,
         assigned_to_name=furniture.assigned_to_name,
         assigned_date=furniture.assigned_date,
+        assignment_type=furniture.assignment_type,  # ADDED
         location=furniture.location,
         condition=furniture.condition,
         status=furniture.status,
@@ -341,6 +347,20 @@ async def assign_furniture(
             detail="Furniture is already assigned. Please unassign first or transfer."
         )
     
+    # Validate assignment type
+    if assign_data.assignment_type not in ["PAR", "Job Order"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Assignment type must be either 'PAR' or 'Job Order'"
+        )
+    
+    # Validate PAR number for PAR assignments
+    if assign_data.assignment_type == "PAR" and not assign_data.par_number:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="PAR number is required for PAR assignments"
+        )
+    
     # Verify user exists
     user = await User.get(assign_data.assigned_to_user_id)
     if not user:
@@ -353,8 +373,9 @@ async def assign_furniture(
     furniture.assigned_to_user_id = assign_data.assigned_to_user_id
     furniture.assigned_to_name = assign_data.assigned_to_name
     furniture.assigned_date = assign_data.assigned_date
+    furniture.assignment_type = assign_data.assignment_type  # ADDED
     furniture.location = assign_data.location
-    furniture.par_number = assign_data.par_number
+    furniture.par_number = assign_data.par_number if assign_data.assignment_type == "PAR" else None
     furniture.status = "Assigned"
     furniture.updated_at = datetime.utcnow()
     
@@ -376,6 +397,7 @@ async def assign_furniture(
         assigned_to_user_id=furniture.assigned_to_user_id,
         assigned_to_name=furniture.assigned_to_name,
         assigned_date=furniture.assigned_date,
+        assignment_type=furniture.assignment_type,  # ADDED
         location=furniture.location,
         condition=furniture.condition,
         status=furniture.status,
@@ -406,7 +428,9 @@ async def unassign_furniture(
     furniture.assigned_to_user_id = None
     furniture.assigned_to_name = None
     furniture.assigned_date = None
+    furniture.assignment_type = None  # ADDED
     furniture.location = None
+    furniture.par_number = None  # Clear PAR number on unassign
     furniture.status = "Available"
     furniture.updated_at = datetime.utcnow()
     
@@ -428,6 +452,7 @@ async def unassign_furniture(
         assigned_to_user_id=furniture.assigned_to_user_id,
         assigned_to_name=furniture.assigned_to_name,
         assigned_date=furniture.assigned_date,
+        assignment_type=furniture.assignment_type,  # ADDED
         location=furniture.location,
         condition=furniture.condition,
         status=furniture.status,
@@ -438,8 +463,6 @@ async def unassign_furniture(
         created_at=furniture.created_at,
         updated_at=furniture.updated_at
     )
-
-
 
 
 # ============ FILE UPLOAD (PAR DOCUMENTS) ============
@@ -531,3 +554,11 @@ async def download_par_document(
 async def get_furniture_types():
     """Get list of furniture types"""
     return {"furniture_types": FURNITURE_TYPES}
+
+
+# Add endpoint to get assignment types
+@router.get("/assignment-types/list")
+async def get_assignment_types():
+    """Get list of assignment types"""
+    from app.models.equipment import ASSIGNMENT_TYPES
+    return {"assignment_types": ASSIGNMENT_TYPES}

@@ -108,7 +108,7 @@ export interface AssignEquipmentData {
   assigned_to_user_id: string;
   assigned_to_name: string;
   assigned_date: string;
-  assignment_type: 'PAR' | 'Job Order';  // NEW
+  assignment_type: 'PAR' | 'Job Order';
   previous_recipient?: string;
   par_number?: string;
 }
@@ -117,7 +117,7 @@ export interface AssignFurnitureData {
   assigned_to_user_id: string;
   assigned_to_name: string;
   assigned_date: string;
-  assignment_type: 'PAR' | 'Job Order';  // NEW
+  assignment_type: 'PAR' | 'Job Order';
   location?: string;
   par_number?: string;
 }

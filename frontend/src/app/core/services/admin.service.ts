@@ -22,6 +22,11 @@ export class AdminService {
     return this.http.get<User[]>(`${this.apiUrl}/all-users`);
   }
 
+  // Get approved users only - ADDED
+  getApprovedUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/all-users`);
+  }
+
   // Approve a pending user
   approveUser(userId: string): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/approve-user/${userId}`, {});
@@ -39,8 +44,6 @@ export class AdminService {
 
   // Get dashboard statistics
   getDashboardStats(): Observable<any> {
-    // This endpoint would return stats like total users, pending approvals, etc.
-    // For now, we'll calculate it on frontend
     return this.http.get<any>(`${this.apiUrl}/stats`);
   }
 }

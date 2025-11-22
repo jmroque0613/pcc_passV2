@@ -8,6 +8,7 @@ import { AdminService } from '../../core/services/admin.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Equipment, EQUIPMENT_TYPES, CONDITIONS, STATUSES } from '../../core/models/equipment.model';
 import { User } from '../../core/models/user.model';
+import { AssignEquipmentDialogComponent } from './dialogs/assign-equipment-dialog.component';
 
 // Material Imports
 import { MatIconModule } from '@angular/material/icon';
@@ -45,7 +46,8 @@ import { FilterPipe } from '../../core/pipes/filter.pipe';
     MatMenuModule,
     MatChipsModule,
     MatDividerModule,
-    FilterPipe
+    FilterPipe,
+    AssignEquipmentDialogComponent
   ],
   templateUrl: './admin-equipment.component.html'
 })
@@ -116,6 +118,7 @@ export class AdminEquipmentComponent implements OnInit {
     this.assignForm = this.fb.group({
       assigned_to_user_id: ['', [Validators.required]],
       assigned_date: [new Date(), [Validators.required]],
+      assignment_type: ['PAR', [Validators.required]],
       par_number: [''],
       previous_recipient: ['']
     });
@@ -158,7 +161,7 @@ export class AdminEquipmentComponent implements OnInit {
     this.loading = true;
     const formData = this.equipmentForm.value;
 
-    if (this.selectedEquipment) {
+    if (this.selectedEquipment && this.selectedEquipment.id) {
       // Update existing equipment
       this.equipmentService.updateEquipment(this.selectedEquipment.id, formData).subscribe({
         next: (response) => {
@@ -195,6 +198,12 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   editEquipment(equipment: Equipment): void {
+    if (!equipment.id) {
+      this.errorMessage = 'Invalid equipment data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     this.selectedEquipment = equipment;
     this.showAddForm = true;
     
@@ -207,7 +216,7 @@ export class AdminEquipmentComponent implements OnInit {
       model: equipment.model,
       serial_number: equipment.serial_number,
       specifications: equipment.specifications,
-      acquisition_date: new Date(equipment.acquisition_date),
+      acquisition_date: equipment.acquisition_date ? new Date(equipment.acquisition_date) : null,
       acquisition_cost: equipment.acquisition_cost,
       condition: equipment.condition,
       status: equipment.status,
@@ -218,6 +227,12 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   deleteEquipment(equipment: Equipment): void {
+    if (!equipment.id) {
+      this.errorMessage = 'Invalid equipment data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     if (!confirm(`Are you sure you want to delete ${equipment.property_number}?`)) {
       return;
     }
@@ -236,20 +251,40 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   openAssignDialog(equipment: Equipment): void {
+    if (!equipment.id) {
+      this.errorMessage = 'Invalid equipment data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     const dialogRef = this.dialog.open(AssignEquipmentDialogComponent, {
       width: '600px',
       data: { equipment }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.assignEquipment(equipment.id!, result);
+      if (result && equipment.id) {
+        this.assignEquipment(equipment.id, result);
+      }
+    });
+  }
+
+  assignEquipment(equipmentId: string, assignData: any): void {
+    this.equipmentService.assignEquipment(equipmentId, assignData).subscribe({
+      next: (response) => {
+        this.successMessage = 'Equipment assigned successfully!';
+        this.loadEquipment();
+        this.clearMessageAfterDelay();
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.detail || 'Failed to assign equipment';
+        this.clearMessageAfterDelay();
       }
     });
   }
 
   onAssignSubmit(): void {
-    if (this.assignForm.invalid || !this.selectedEquipment) {
+    if (this.assignForm.invalid || !this.selectedEquipment || !this.selectedEquipment.id) {
       return;
     }
 
@@ -263,6 +298,7 @@ export class AdminEquipmentComponent implements OnInit {
       assigned_to_user_id: this.assignForm.value.assigned_to_user_id,
       assigned_to_name: `${selectedUser.first_name} ${selectedUser.surname}`,
       assigned_date: this.assignForm.value.assigned_date,
+      assignment_type: this.assignForm.value.assignment_type,
       previous_recipient: this.assignForm.value.previous_recipient,
       par_number: this.assignForm.value.par_number
     };
@@ -284,6 +320,12 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   unassignEquipment(equipment: Equipment): void {
+    if (!equipment.id) {
+      this.errorMessage = 'Invalid equipment data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     if (!confirm(`Unassign equipment from ${equipment.assigned_to_name}?`)) {
       return;
     }
@@ -302,6 +344,12 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   onFileSelected(event: any, equipment: Equipment): void {
+    if (!equipment.id) {
+      this.errorMessage = 'Invalid equipment data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
       this.selectedFile = file;
@@ -313,7 +361,7 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   uploadPAR(equipment: Equipment): void {
-    if (!this.selectedFile) return;
+    if (!this.selectedFile || !equipment.id) return;
 
     this.equipmentService.uploadEquipmentPAR(equipment.id, this.selectedFile).subscribe({
       next: () => {
@@ -330,6 +378,12 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   downloadPAR(equipment: Equipment): void {
+    if (!equipment.id) {
+      this.errorMessage = 'Invalid equipment data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     this.equipmentService.downloadEquipmentPAR(equipment.id).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -354,7 +408,10 @@ export class AdminEquipmentComponent implements OnInit {
       condition: 'New',
       status: 'Available'
     });
-    this.assignForm.reset();
+    this.assignForm.reset({
+      assignment_type: 'PAR',
+      assigned_date: new Date()
+    });
   }
 
   clearMessageAfterDelay(): void {
