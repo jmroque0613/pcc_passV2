@@ -1,29 +1,30 @@
 // frontend/src/app/core/models/equipment.model.ts
 
 export interface Equipment {
-  id: string;
+  id?: string;
   property_number: string;
-  gsd_code: string;
-  item_number: string;
+  gsd_code?: string;
+  item_number?: string;
   equipment_type: string;
   brand: string;
   model: string;
-  serial_number: string;
+  serial_number?: string;
   specifications?: string;
-  acquisition_date: Date | string;
-  acquisition_cost: number;
+  acquisition_date?: string;
+  acquisition_cost?: number;
   assigned_to_user_id?: string;
   assigned_to_name?: string;
-  assigned_date?: Date | string;
+  assigned_date?: string;
+  assignment_type?: 'PAR' | 'Job Order';  // NEW
   previous_recipient?: string;
   condition: string;
   status: string;
   remarks?: string;
   par_file_path?: string;
   par_number?: string;
-  created_by: string;
-  created_at: Date | string;
-  updated_at: Date | string;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface EquipmentCreate {
@@ -51,30 +52,31 @@ export interface EquipmentAssign {
 }
 
 export interface Furniture {
-  id: string;
+  id?: string;
   property_number: string;
-  gsd_code: string;
-  item_number: string;
+  gsd_code?: string;
+  item_number?: string;
   furniture_type: string;
   description: string;
   brand?: string;
   material?: string;
   color?: string;
   dimensions?: string;
-  acquisition_date: Date | string;
-  acquisition_cost: number;
+  acquisition_date?: string;
+  acquisition_cost?: number;
   assigned_to_user_id?: string;
   assigned_to_name?: string;
-  assigned_date?: Date | string;
+  assigned_date?: string;
+  assignment_type?: 'PAR' | 'Job Order';  // NEW
   location?: string;
   condition: string;
   status: string;
   remarks?: string;
   par_file_path?: string;
   par_number?: string;
-  created_by: string;
-  created_at: Date | string;
-  updated_at: Date | string;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface FurnitureCreate {
@@ -98,6 +100,24 @@ export interface FurnitureAssign {
   assigned_to_user_id: string;
   assigned_to_name: string;
   assigned_date: Date | string;
+  location?: string;
+  par_number?: string;
+}
+
+export interface AssignEquipmentData {
+  assigned_to_user_id: string;
+  assigned_to_name: string;
+  assigned_date: string;
+  assignment_type: 'PAR' | 'Job Order';  // NEW
+  previous_recipient?: string;
+  par_number?: string;
+}
+
+export interface AssignFurnitureData {
+  assigned_to_user_id: string;
+  assigned_to_name: string;
+  assigned_date: string;
+  assignment_type: 'PAR' | 'Job Order';  // NEW
   location?: string;
   par_number?: string;
 }
@@ -148,3 +168,4 @@ export const STATUSES = [
   'Under Repair',
   'Disposed'
 ];
+

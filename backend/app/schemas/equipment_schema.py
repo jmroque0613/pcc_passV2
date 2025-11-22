@@ -101,6 +101,7 @@ class EquipmentResponseSchema(BaseModel):
     created_by: str
     created_at: datetime
     updated_at: datetime
+    
 
 
 # ============ FURNITURE SCHEMAS ============
@@ -182,6 +183,75 @@ class FurnitureResponseSchema(BaseModel):
     assigned_to_user_id: Optional[str]
     assigned_to_name: Optional[str]
     assigned_date: Optional[datetime]
+    location: Optional[str]
+    condition: str
+    status: str
+    remarks: Optional[str]
+    par_file_path: Optional[str]
+    par_number: Optional[str]
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+class EquipmentAssignSchema(BaseModel):
+    assigned_to_user_id: str
+    assigned_to_name: str
+    assigned_date: datetime
+    assignment_type: str = Field(..., description="PAR or Job Order")  # NEW
+    previous_recipient: Optional[str] = None
+    par_number: Optional[str] = None  # Only required for PAR assignments
+
+class FurnitureAssignSchema(BaseModel):
+    assigned_to_user_id: str
+    assigned_to_name: str
+    assigned_date: datetime
+    assignment_type: str = Field(..., description="PAR or Job Order")  # NEW
+    location: Optional[str] = None
+    par_number: Optional[str] = None  # Only required for PAR assignments
+
+class EquipmentResponseSchema(BaseModel):
+    id: str
+    property_number: str
+    gsd_code: Optional[str]
+    item_number: Optional[str]
+    equipment_type: str
+    brand: str
+    model: str
+    serial_number: Optional[str]
+    specifications: Optional[str]
+    acquisition_date: Optional[datetime]
+    acquisition_cost: Optional[float]
+    assigned_to_user_id: Optional[str]
+    assigned_to_name: Optional[str]
+    assigned_date: Optional[datetime]
+    assignment_type: Optional[str]  # NEW
+    previous_recipient: Optional[str]
+    condition: str
+    status: str
+    remarks: Optional[str]
+    par_file_path: Optional[str]
+    par_number: Optional[str]
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+class FurnitureResponseSchema(BaseModel):
+    id: str
+    property_number: str
+    gsd_code: Optional[str]
+    item_number: Optional[str]
+    furniture_type: str
+    description: str
+    brand: Optional[str]
+    material: Optional[str]
+    color: Optional[str]
+    dimensions: Optional[str]
+    acquisition_date: Optional[datetime]
+    acquisition_cost: Optional[float]
+    assigned_to_user_id: Optional[str]
+    assigned_to_name: Optional[str]
+    assigned_date: Optional[datetime]
+    assignment_type: Optional[str]  # NEW
     location: Optional[str]
     condition: str
     status: str

@@ -236,13 +236,15 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   openAssignDialog(equipment: Equipment): void {
-    this.selectedEquipment = equipment;
-    this.showAssignForm = true;
-    this.assignForm.reset({
-      assigned_to_user_id: '',
-      assigned_date: new Date(),
-      par_number: '',
-      previous_recipient: equipment.previous_recipient || ''
+    const dialogRef = this.dialog.open(AssignEquipmentDialogComponent, {
+      width: '600px',
+      data: { equipment }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.assignEquipment(equipment.id!, result);
+      }
     });
   }
 

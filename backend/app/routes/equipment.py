@@ -24,9 +24,6 @@ router = APIRouter(prefix="/api/equipment", tags=["Equipment"])
 async def get_my_equipment(current_user: User = Depends(get_current_user)):
     """Get equipment assigned to current user - USER ACCESS"""
     print(f"🔍 User requesting equipment: {current_user.email}, ID: {current_user.id}")
-    print(f"🔍 User role: {current_user.role}")
-    print(f"🔍 User is_approved: {current_user.is_approved}")
-    print(f"🔍 User is_active: {current_user.is_active}")
     
     equipment_list = await Equipment.find(
         Equipment.assigned_to_user_id == str(current_user.id)
@@ -50,6 +47,7 @@ async def get_my_equipment(current_user: User = Depends(get_current_user)):
             assigned_to_user_id=eq.assigned_to_user_id,
             assigned_to_name=eq.assigned_to_name,
             assigned_date=eq.assigned_date,
+            assignment_type=eq.assignment_type,  # NEW
             previous_recipient=eq.previous_recipient,
             condition=eq.condition,
             status=eq.status,
@@ -63,8 +61,13 @@ async def get_my_equipment(current_user: User = Depends(get_current_user)):
         for eq in equipment_list
     ]
 
-
 # ============ UTILITY ENDPOINTS - BEFORE PARAMETERIZED ROUTES ============
+@router.get("/assignment-types/list")
+async def get_assignment_types():
+    """Get list of assignment types"""
+    from app.models.equipment import ASSIGNMENT_TYPES
+    return {"assignment_types": ASSIGNMENT_TYPES}
+
 
 @router.get("/types/list")
 async def get_equipment_types():
@@ -356,6 +359,20 @@ async def assign_equipment(
             detail="Equipment is already assigned. Please unassign first or transfer."
         )
     
+    # Validate assignment type
+    if assign_data.assignment_type not in ["PAR", "Job Order"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Assignment type must be either 'PAR' or 'Job Order'"
+        )
+    
+    # Validate PAR number for PAR assignments
+    if assign_data.assignment_type == "PAR" and not assign_data.par_number:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="PAR number is required for PAR assignments"
+        )
+    
     # Verify user exists
     user = await User.get(assign_data.assigned_to_user_id)
     if not user:
@@ -368,8 +385,9 @@ async def assign_equipment(
     equipment.assigned_to_user_id = assign_data.assigned_to_user_id
     equipment.assigned_to_name = assign_data.assigned_to_name
     equipment.assigned_date = assign_data.assigned_date
+    equipment.assignment_type = assign_data.assignment_type  # NEW
     equipment.previous_recipient = assign_data.previous_recipient
-    equipment.par_number = assign_data.par_number
+    equipment.par_number = assign_data.par_number if assign_data.assignment_type == "PAR" else None
     equipment.status = "Assigned"
     equipment.updated_at = datetime.utcnow()
     
@@ -390,6 +408,7 @@ async def assign_equipment(
         assigned_to_user_id=equipment.assigned_to_user_id,
         assigned_to_name=equipment.assigned_to_name,
         assigned_date=equipment.assigned_date,
+        assignment_type=equipment.assignment_type,  # NEW
         previous_recipient=equipment.previous_recipient,
         condition=equipment.condition,
         status=equipment.status,
@@ -400,7 +419,6 @@ async def assign_equipment(
         created_at=equipment.created_at,
         updated_at=equipment.updated_at
     )
-
 
 @router.post("/{equipment_id}/unassign", response_model=EquipmentResponseSchema)
 async def unassign_equipment(
