@@ -116,6 +116,7 @@ export class AdminFurnitureComponent implements OnInit {
     this.assignForm = this.fb.group({
       assigned_to_user_id: ['', [Validators.required]],
       assigned_date: [new Date(), [Validators.required]],
+      assignment_type: ['PAR', [Validators.required]],
       location: [''],
       par_number: ['']
     });
@@ -158,8 +159,8 @@ export class AdminFurnitureComponent implements OnInit {
     this.loading = true;
     const formData = this.furnitureForm.value;
 
-    if (this.selectedFurniture) {
-      // Update existing furniture
+    if (this.selectedFurniture && this.selectedFurniture.id) {
+      // Update existing furniture - FIXED
       this.equipmentService.updateFurniture(this.selectedFurniture.id, formData).subscribe({
         next: (response) => {
           this.successMessage = 'Furniture updated successfully!';
@@ -195,6 +196,12 @@ export class AdminFurnitureComponent implements OnInit {
   }
 
   editFurniture(furniture: Furniture): void {
+    if (!furniture.id) {
+      this.errorMessage = 'Invalid furniture data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     this.selectedFurniture = furniture;
     this.showAddForm = true;
     
@@ -208,7 +215,7 @@ export class AdminFurnitureComponent implements OnInit {
       material: furniture.material,
       color: furniture.color,
       dimensions: furniture.dimensions,
-      acquisition_date: new Date(furniture.acquisition_date),
+      acquisition_date: furniture.acquisition_date ? new Date(furniture.acquisition_date) : null, // FIXED
       acquisition_cost: furniture.acquisition_cost,
       condition: furniture.condition,
       status: furniture.status,
@@ -219,6 +226,12 @@ export class AdminFurnitureComponent implements OnInit {
   }
 
   deleteFurniture(furniture: Furniture): void {
+    if (!furniture.id) {
+      this.errorMessage = 'Invalid furniture data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     if (!confirm(`Are you sure you want to delete ${furniture.property_number}?`)) {
       return;
     }
@@ -237,18 +250,25 @@ export class AdminFurnitureComponent implements OnInit {
   }
 
   openAssignDialog(furniture: Furniture): void {
+    if (!furniture.id) {
+      this.errorMessage = 'Invalid furniture data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     this.selectedFurniture = furniture;
     this.showAssignForm = true;
     this.assignForm.reset({
       assigned_to_user_id: '',
       assigned_date: new Date(),
+      assignment_type: 'PAR',
       location: '',
       par_number: ''
     });
   }
 
   onAssignSubmit(): void {
-    if (this.assignForm.invalid || !this.selectedFurniture) {
+    if (this.assignForm.invalid || !this.selectedFurniture || !this.selectedFurniture.id) {
       return;
     }
 
@@ -262,6 +282,7 @@ export class AdminFurnitureComponent implements OnInit {
       assigned_to_user_id: this.assignForm.value.assigned_to_user_id,
       assigned_to_name: `${selectedUser.first_name} ${selectedUser.surname}`,
       assigned_date: this.assignForm.value.assigned_date,
+      assignment_type: this.assignForm.value.assignment_type,
       location: this.assignForm.value.location,
       par_number: this.assignForm.value.par_number
     };
@@ -283,6 +304,12 @@ export class AdminFurnitureComponent implements OnInit {
   }
 
   unassignFurniture(furniture: Furniture): void {
+    if (!furniture.id) {
+      this.errorMessage = 'Invalid furniture data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     if (!confirm(`Unassign furniture from ${furniture.assigned_to_name}?`)) {
       return;
     }
@@ -301,6 +328,12 @@ export class AdminFurnitureComponent implements OnInit {
   }
 
   onFileSelected(event: any, furniture: Furniture): void {
+    if (!furniture.id) {
+      this.errorMessage = 'Invalid furniture data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
       this.selectedFile = file;
@@ -312,7 +345,7 @@ export class AdminFurnitureComponent implements OnInit {
   }
 
   uploadPAR(furniture: Furniture): void {
-    if (!this.selectedFile) return;
+    if (!this.selectedFile || !furniture.id) return;
 
     this.equipmentService.uploadFurniturePAR(furniture.id, this.selectedFile).subscribe({
       next: () => {
@@ -329,6 +362,12 @@ export class AdminFurnitureComponent implements OnInit {
   }
 
   downloadPAR(furniture: Furniture): void {
+    if (!furniture.id) {
+      this.errorMessage = 'Invalid furniture data';
+      this.clearMessageAfterDelay();
+      return;
+    }
+
     this.equipmentService.downloadFurniturePAR(furniture.id).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -353,7 +392,10 @@ export class AdminFurnitureComponent implements OnInit {
       condition: 'New',
       status: 'Available'
     });
-    this.assignForm.reset();
+    this.assignForm.reset({
+      assignment_type: 'PAR',
+      assigned_date: new Date()
+    });
   }
 
   clearMessageAfterDelay(): void {

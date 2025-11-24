@@ -1,8 +1,10 @@
+// frontend/src/app/core/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment.prod'; // ADD THIS
 import { 
   User, 
   UserRegister, 
@@ -15,7 +17,7 @@ import {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api/auth';
+  private apiUrl = `${environment.apiUrl}/api/auth`;
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
 
@@ -47,6 +49,7 @@ export class AuthService {
     return this.http.post<TokenResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap(response => {
+          console.log('🔐 Storing token:', response.access_token); // Debug
           localStorage.setItem('accessToken', response.access_token);
           localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
@@ -62,6 +65,8 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken');
+    console.log('🎫 Getting token:', token ? 'Token exists' : 'No token'); // Debug
+    return token;
   }
 }

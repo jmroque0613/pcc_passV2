@@ -14,12 +14,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
   
+  console.log('🔒 Interceptor running for:', req.url); // Debug
+  console.log('🎫 Token available:', !!token); // Debug
+  
   if (token) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
     });
+    console.log('✅ Token added to request'); // Debug
+  } else {
+    console.log('⚠️ No token available'); // Debug
   }
   
   return next(req);

@@ -47,7 +47,6 @@ import { FilterPipe } from '../../core/pipes/filter.pipe';
     MatChipsModule,
     MatDividerModule,
     FilterPipe,
-    AssignEquipmentDialogComponent
   ],
   templateUrl: './admin-equipment.component.html'
 })

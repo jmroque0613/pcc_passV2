@@ -48,10 +48,15 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS Configuration
+# CORS Configuration - UPDATED for network access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:4200"],
+    allow_origins=[
+        "http://localhost:4200",
+        "http://127.0.0.1:4200",
+        "http://172.16.2.4:4200",  # Your IP
+        "http://172.16.2.4:8000",  # Backend IP
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

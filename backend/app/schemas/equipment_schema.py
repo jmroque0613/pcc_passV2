@@ -6,51 +6,19 @@ from pydantic import BaseModel, Field, validator
 # ============ EQUIPMENT SCHEMAS ============
 
 class EquipmentCreateSchema(BaseModel):
-    # Property Details
     property_number: str = Field(..., min_length=1, max_length=100)
     gsd_code: str = Field(..., min_length=1, max_length=100)
     item_number: str = Field(..., min_length=1, max_length=100)
-    
-    # Equipment Information
     equipment_type: str
     brand: str = Field(..., min_length=1, max_length=100)
     model: str = Field(..., min_length=1, max_length=100)
     serial_number: str = Field(..., min_length=1, max_length=100)
     specifications: Optional[str] = None
-    
-    # Acquisition Details
     acquisition_date: datetime
     acquisition_cost: float = Field(..., ge=0)
-    
-    # Condition & Status
     condition: str = "New"
     status: str = "Available"
     remarks: Optional[str] = None
-    
-    @validator('equipment_type')
-    def validate_equipment_type(cls, v):
-        valid_types = [
-            "Desktop Computer", "Laptop", "Monitor", "Keyboard", "Mouse",
-            "Printer", "Scanner", "UPS", "External Hard Drive", "Network Device",
-            "Projector", "Webcam", "Headset", "Other IT Equipment"
-        ]
-        if v not in valid_types:
-            raise ValueError(f'Invalid equipment type. Must be one of: {", ".join(valid_types)}')
-        return v
-    
-    @validator('condition')
-    def validate_condition(cls, v):
-        valid_conditions = ["New", "Good", "Fair", "For Repair", "For Disposal"]
-        if v not in valid_conditions:
-            raise ValueError(f'Invalid condition. Must be one of: {", ".join(valid_conditions)}')
-        return v
-    
-    @validator('status')
-    def validate_status(cls, v):
-        valid_statuses = ["Available", "Assigned", "Under Repair", "Disposed"]
-        if v not in valid_statuses:
-            raise ValueError(f'Invalid status. Must be one of: {", ".join(valid_statuses)}')
-        return v
 
 
 class EquipmentUpdateSchema(BaseModel):
@@ -73,6 +41,7 @@ class EquipmentAssignSchema(BaseModel):
     assigned_to_user_id: str
     assigned_to_name: str
     assigned_date: datetime
+    assignment_type: str = Field(..., description="PAR or Job Order")
     previous_recipient: Optional[str] = None
     par_number: Optional[str] = None
 
@@ -80,18 +49,19 @@ class EquipmentAssignSchema(BaseModel):
 class EquipmentResponseSchema(BaseModel):
     id: str
     property_number: str
-    gsd_code: str
-    item_number: str
+    gsd_code: Optional[str]
+    item_number: Optional[str]
     equipment_type: str
     brand: str
     model: str
-    serial_number: str
+    serial_number: Optional[str]
     specifications: Optional[str]
-    acquisition_date: datetime
-    acquisition_cost: float
+    acquisition_date: Optional[datetime]
+    acquisition_cost: Optional[float]
     assigned_to_user_id: Optional[str]
     assigned_to_name: Optional[str]
     assigned_date: Optional[datetime]
+    assignment_type: Optional[str] = None  # CHANGED: Made optional with default None
     previous_recipient: Optional[str]
     condition: str
     status: str
@@ -101,44 +71,25 @@ class EquipmentResponseSchema(BaseModel):
     created_by: str
     created_at: datetime
     updated_at: datetime
-    
 
 
 # ============ FURNITURE SCHEMAS ============
 
 class FurnitureCreateSchema(BaseModel):
-    # Property Details
     property_number: str = Field(..., min_length=1, max_length=100)
     gsd_code: str = Field(..., min_length=1, max_length=100)
     item_number: str = Field(..., min_length=1, max_length=100)
-    
-    # Furniture Information
     furniture_type: str
     description: str = Field(..., min_length=1, max_length=500)
     brand: Optional[str] = None
     material: Optional[str] = None
     color: Optional[str] = None
     dimensions: Optional[str] = None
-    
-    # Acquisition Details
     acquisition_date: datetime
     acquisition_cost: float = Field(..., ge=0)
-    
-    # Condition & Status
     condition: str = "New"
     status: str = "Available"
     remarks: Optional[str] = None
-    
-    @validator('furniture_type')
-    def validate_furniture_type(cls, v):
-        valid_types = [
-            "Office Chair", "Executive Chair", "Office Desk", "Conference Table",
-            "Filing Cabinet", "Bookshelf", "Storage Cabinet", "Drawer",
-            "Workstation", "Partition", "Other Furniture"
-        ]
-        if v not in valid_types:
-            raise ValueError(f'Invalid furniture type. Must be one of: {", ".join(valid_types)}')
-        return v
 
 
 class FurnitureUpdateSchema(BaseModel):
@@ -163,6 +114,7 @@ class FurnitureAssignSchema(BaseModel):
     assigned_to_user_id: str
     assigned_to_name: str
     assigned_date: datetime
+    assignment_type: str = Field(..., description="PAR or Job Order")
     location: Optional[str] = None
     par_number: Optional[str] = None
 
@@ -170,74 +122,6 @@ class FurnitureAssignSchema(BaseModel):
 class FurnitureResponseSchema(BaseModel):
     id: str
     property_number: str
-    gsd_code: str
-    item_number: str
-    furniture_type: str
-    description: str
-    brand: Optional[str]
-    material: Optional[str]
-    color: Optional[str]
-    dimensions: Optional[str]
-    acquisition_date: datetime
-    acquisition_cost: float
-    assigned_to_user_id: Optional[str]
-    assigned_to_name: Optional[str]
-    assigned_date: Optional[datetime]
-    location: Optional[str]
-    condition: str
-    status: str
-    remarks: Optional[str]
-    par_file_path: Optional[str]
-    par_number: Optional[str]
-    created_by: str
-    created_at: datetime
-    updated_at: datetime
-
-class EquipmentAssignSchema(BaseModel):
-    assigned_to_user_id: str
-    assigned_to_name: str
-    assigned_date: datetime
-    assignment_type: str = Field(..., description="PAR or Job Order")  # NEW
-    previous_recipient: Optional[str] = None
-    par_number: Optional[str] = None  # Only required for PAR assignments
-
-class FurnitureAssignSchema(BaseModel):
-    assigned_to_user_id: str
-    assigned_to_name: str
-    assigned_date: datetime
-    assignment_type: str = Field(..., description="PAR or Job Order")  # NEW
-    location: Optional[str] = None
-    par_number: Optional[str] = None  # Only required for PAR assignments
-
-class EquipmentResponseSchema(BaseModel):
-    id: str
-    property_number: str
-    gsd_code: Optional[str]
-    item_number: Optional[str]
-    equipment_type: str
-    brand: str
-    model: str
-    serial_number: Optional[str]
-    specifications: Optional[str]
-    acquisition_date: Optional[datetime]
-    acquisition_cost: Optional[float]
-    assigned_to_user_id: Optional[str]
-    assigned_to_name: Optional[str]
-    assigned_date: Optional[datetime]
-    assignment_type: Optional[str]  # NEW
-    previous_recipient: Optional[str]
-    condition: str
-    status: str
-    remarks: Optional[str]
-    par_file_path: Optional[str]
-    par_number: Optional[str]
-    created_by: str
-    created_at: datetime
-    updated_at: datetime
-
-class FurnitureResponseSchema(BaseModel):
-    id: str
-    property_number: str
     gsd_code: Optional[str]
     item_number: Optional[str]
     furniture_type: str
@@ -251,7 +135,7 @@ class FurnitureResponseSchema(BaseModel):
     assigned_to_user_id: Optional[str]
     assigned_to_name: Optional[str]
     assigned_date: Optional[datetime]
-    assignment_type: Optional[str]  # NEW
+    assignment_type: Optional[str] = None  # CHANGED: Made optional with default None
     location: Optional[str]
     condition: str
     status: str
