@@ -9,7 +9,7 @@ import { Equipment, EquipmentCreate, EquipmentAssign, Furniture, FurnitureCreate
   providedIn: 'root'
 })
 export class EquipmentService {
-  private apiUrl = `${environment.apiUrl}/api/admin`;
+  private apiUrl = `${environment.apiUrl}/api`;
 
   constructor(private http: HttpClient) {}
 

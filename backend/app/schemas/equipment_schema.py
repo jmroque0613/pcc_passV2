@@ -72,6 +72,14 @@ class EquipmentResponseSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+class EquipmentTransferSchema(BaseModel):
+    new_user_id: str
+    new_user_name: str
+    transfer_date: datetime
+    transfer_reason: Optional[str] = None
+    previous_recipient: Optional[str] = None
+    assignment_type: Optional[str] = None
+    par_number: Optional[str] = None
 
 # ============ FURNITURE SCHEMAS ============
 

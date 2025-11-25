@@ -26,6 +26,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { FilterPipe } from '../../core/pipes/filter.pipe';
 import { MatRadioModule } from '@angular/material/radio';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-equipment',
@@ -48,10 +49,12 @@ import { MatRadioModule } from '@angular/material/radio';
     MatChipsModule,
     MatDividerModule,
     MatRadioModule,
-    FilterPipe,
+    FilterPipe
   ],
   templateUrl: './admin-equipment.component.html'
 })
+
+
 export class AdminEquipmentComponent implements OnInit {
   equipmentList: Equipment[] = [];
   allUsers: User[] = [];
@@ -82,6 +85,22 @@ export class AdminEquipmentComponent implements OnInit {
     'actions'
   ];
 
+  parNumberValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const formGroup = control.parent;
+    if (!formGroup) return null;
+
+    const assignmentType = formGroup.get('assignment_type')?.value;
+    const parNumber = control.value;
+
+    if (assignmentType === 'PAR' && !parNumber) {
+      return { parNumberRequired: true };
+    }
+
+    return null;
+  };
+}
+
   constructor(
     private fb: FormBuilder,
     private equipmentService: EquipmentService,
@@ -91,6 +110,7 @@ export class AdminEquipmentComponent implements OnInit {
     private dialog: MatDialog
   ) {}
 
+  
   ngOnInit(): void {
     this.initForms();
     this.loadEquipment();
@@ -119,8 +139,8 @@ export class AdminEquipmentComponent implements OnInit {
     this.assignForm = this.fb.group({
       assigned_to_user_id: ['', [Validators.required]],
       assigned_date: [new Date(), [Validators.required]],
-      assignment_type: ['PAR', [Validators.required]], // Default to PAR
-      par_number: ['', [Validators.required]], // Required by default for PAR
+      assignment_type: ['PAR', [Validators.required]],
+      par_number: ['', [this.parNumberValidator()]],
       previous_recipient: ['']
     });
     
@@ -128,13 +148,14 @@ export class AdminEquipmentComponent implements OnInit {
     this.assignForm.get('assignment_type')?.valueChanges.subscribe(type => {
       const parNumberControl = this.assignForm.get('par_number');
       if (type === 'PAR') {
-        parNumberControl?.setValidators([Validators.required]);
+        parNumberControl?.setValidators([this.parNumberValidator()]);
       } else {
         parNumberControl?.clearValidators();
         parNumberControl?.setValue('');
       }
       parNumberControl?.updateValueAndValidity();
     });
+
   }
 
   loadEquipment(): void {
@@ -430,7 +451,7 @@ export class AdminEquipmentComponent implements OnInit {
       par_number: '' // ✅ Reset PAR number
     });
   }
-  
+
   clearMessageAfterDelay(): void {
     setTimeout(() => {
       this.successMessage = '';

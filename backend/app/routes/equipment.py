@@ -12,9 +12,11 @@ from app.schemas.equipment_schema import (
     EquipmentCreateSchema,
     EquipmentUpdateSchema,
     EquipmentAssignSchema,
-    EquipmentResponseSchema
+    EquipmentResponseSchema,
+    EquipmentTransferSchema
 )
 from app.utils.dependencies import get_current_admin, get_current_user
+from app.services.audit_service import AuditService
 
 router = APIRouter(prefix="/api/equipment", tags=["Equipment"])
 
@@ -74,6 +76,14 @@ async def get_equipment_types():
     """Get list of equipment types"""
     return {"equipment_types": EQUIPMENT_TYPES}
 
+@router.get("/stats")
+async def get_equipment_stats(current_admin: User = Depends(get_current_admin)):
+    return {
+        "total": await Equipment.count(),
+        "available": await Equipment.find(Equipment.status == "Available").count(),
+        "assigned": await Equipment.find(Equipment.status == "Assigned").count(),
+        "under_repair": await Equipment.find(Equipment.status == "Under Repair").count()
+    }
 
 @router.get("/conditions/list")
 async def get_conditions():
@@ -158,6 +168,26 @@ async def create_equipment(
     )
     
     await new_equipment.insert()
+
+    await AuditService.log_action(
+    user=current_admin,
+    action="CREATE",
+    resource_type="EQUIPMENT",
+    resource_id=str(new_equipment.id),
+    resource_name=f"{new_equipment.brand} {new_equipment.model}",
+    changes={
+        "property_number": new_equipment.property_number,
+        "equipment_type": new_equipment.equipment_type,
+        "status": new_equipment.status
+    },
+    new_values={
+        "property_number": new_equipment.property_number,
+        "equipment_type": new_equipment.equipment_type,
+        "brand": new_equipment.brand,
+        "model": new_equipment.model,
+        "status": new_equipment.status
+    }
+)
     
     return EquipmentResponseSchema(
         id=str(new_equipment.id),
@@ -187,38 +217,45 @@ async def create_equipment(
 
 
 @router.get("/", response_model=List[EquipmentResponseSchema])
-async def get_all_equipment(current_admin: User = Depends(get_current_admin)):
-    """Get all equipment - Admin only"""
-    equipment_list = await Equipment.find_all().to_list()
-    
+async def get_all_equipment(
+    skip: int = 0,
+    limit: int = 100,
+    current_admin: User = Depends(get_current_admin)
+):
+    """Get all equipment with pagination - Admin only"""
+
+    # Fetch with pagination
+    equipment_list = (
+        await Equipment.find_all()
+        .skip(skip)
+        .limit(limit)
+        .to_list()
+    )
+
+    # Convert to response model
     return [
         EquipmentResponseSchema(
             id=str(eq.id),
-            property_number=eq.property_number,
-            gsd_code=eq.gsd_code,
-            item_number=eq.item_number,
-            equipment_type=eq.equipment_type,
-            brand=eq.brand,
-            model=eq.model,
-            serial_number=eq.serial_number,
-            specifications=eq.specifications,
-            acquisition_date=eq.acquisition_date,
-            acquisition_cost=eq.acquisition_cost,
-            assigned_to_user_id=eq.assigned_to_user_id,
-            assigned_to_name=eq.assigned_to_name,
-            assigned_date=eq.assigned_date,
-            previous_recipient=eq.previous_recipient,
-            condition=eq.condition,
-            status=eq.status,
-            remarks=eq.remarks,
-            par_file_path=eq.par_file_path,
-            par_number=eq.par_number,
-            created_by=eq.created_by,
-            created_at=eq.created_at,
-            updated_at=eq.updated_at
+            **eq.model_dump(exclude={"id"})   # Pydantic v2
         )
         for eq in equipment_list
     ]
+
+
+
+@router.get("/search")
+async def search_equipment(
+    query: str,
+    equipment_type: Optional[str] = None,
+    status: Optional[str] = None,
+    current_admin: User = Depends(get_current_admin)
+):
+    filters = {}
+    if equipment_type:
+        filters["equipment_type"] = equipment_type
+    if status:
+        filters["status"] = status
+    # Add text search logic
 
 
 @router.get("/{equipment_id}", response_model=EquipmentResponseSchema)
@@ -261,6 +298,15 @@ async def get_equipment(
         updated_at=equipment.updated_at
     )
 
+@router.post("/{equipment_id}/transfer")
+async def transfer_equipment(
+    equipment_id: str,
+    transfer_data: EquipmentTransferSchema,
+    current_admin: User = Depends(get_current_admin)
+):
+    # Transfer from one user to another with history tracking
+    pass
+
 
 @router.put("/{equipment_id}", response_model=EquipmentResponseSchema)
 async def update_equipment(
@@ -277,6 +323,16 @@ async def update_equipment(
             detail="Equipment not found"
         )
     
+        # ✅ CAPTURE OLD VALUES
+    old_values = {
+        "property_number": equipment.property_number,
+        "equipment_type": equipment.equipment_type,
+        "brand": equipment.brand,
+        "model": equipment.model,
+        "status": equipment.status,
+        "condition": equipment.condition
+    }
+
     # Update fields
     update_data = equipment_data.dict(exclude_unset=True)
     for field, value in update_data.items():
@@ -284,6 +340,28 @@ async def update_equipment(
     
     equipment.updated_at = datetime.utcnow()
     await equipment.save()
+
+        # ✅ CAPTURE NEW VALUES
+    new_values = {
+        "property_number": equipment.property_number,
+        "equipment_type": equipment.equipment_type,
+        "brand": equipment.brand,
+        "model": equipment.model,
+        "status": equipment.status,
+        "condition": equipment.condition
+    }
+
+        # ✅ ADD AUDIT LOG
+    await AuditService.log_action(
+        user=current_admin,
+        action="UPDATE",
+        resource_type="EQUIPMENT",
+        resource_id=str(equipment.id),
+        resource_name=f"{equipment.brand} {equipment.model}",
+        changes=update_data,
+        old_values=old_values,
+        new_values=new_values
+    )
     
     return EquipmentResponseSchema(
         id=str(equipment.id),
@@ -333,7 +411,26 @@ async def delete_equipment(
             detail="Cannot delete assigned equipment. Please unassign first."
         )
     
+    # ✅ CAPTURE INFO BEFORE DELETE
+    equipment_info = f"{equipment.brand} {equipment.model} ({equipment.property_number})"
+    
     await equipment.delete()
+    # ✅ ADD AUDIT LOG
+    await AuditService.log_action(
+        user=current_admin,
+        action="DELETE",
+        resource_type="EQUIPMENT",
+        resource_id=equipment_id,
+        resource_name=equipment_info,
+        old_values={
+            "property_number": equipment.property_number,
+            "equipment_type": equipment.equipment_type,
+            "brand": equipment.brand,
+            "model": equipment.model,
+            "status": equipment.status
+        }
+    )
+    
     return {"message": "Equipment deleted successfully"}
 
 
@@ -391,7 +488,44 @@ async def assign_equipment(
     equipment.status = "Assigned"
     equipment.updated_at = datetime.utcnow()
     
+    # ✅ CAPTURE OLD STATE
+    old_status = equipment.status
+    old_assigned = equipment.assigned_to_name
+    
+    # Assign equipment
+    equipment.assigned_to_user_id = assign_data.assigned_to_user_id
+    equipment.assigned_to_name = assign_data.assigned_to_name
+    equipment.assigned_date = assign_data.assigned_date
+    equipment.assignment_type = assign_data.assignment_type
+    equipment.previous_recipient = assign_data.previous_recipient
+    equipment.par_number = assign_data.par_number if assign_data.assignment_type == "PAR" else None
+    equipment.status = "Assigned"
+    equipment.updated_at = datetime.utcnow()
+    
     await equipment.save()
+    
+    # ✅ ADD AUDIT LOG
+    await AuditService.log_action(
+        user=current_admin,
+        action="ASSIGN",
+        resource_type="EQUIPMENT",
+        resource_id=str(equipment.id),
+        resource_name=f"{equipment.brand} {equipment.model}",
+        changes={
+            "assigned_to": assign_data.assigned_to_name,
+            "assignment_type": assign_data.assignment_type,
+            "status": "Assigned"
+        },
+        old_values={
+            "status": old_status,
+            "assigned_to": old_assigned
+        },
+        new_values={
+            "status": "Assigned",
+            "assigned_to": assign_data.assigned_to_name,
+            "assignment_type": assign_data.assignment_type
+        }
+    )
     
     return EquipmentResponseSchema(
         id=str(equipment.id),
@@ -482,6 +616,16 @@ async def upload_par_document(
     file: UploadFile = File(...),
     current_admin: User = Depends(get_current_admin)
 ):
+    
+        # Add file size limit (e.g., 10MB)
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="File too large. Maximum size is 10MB"
+        )
+    
     """Upload PAR document for equipment - Admin only"""
     equipment = await Equipment.get(equipment_id)
     

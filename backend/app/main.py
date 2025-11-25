@@ -10,7 +10,9 @@ import os
 from app.config import settings
 from app.models.user import User
 from app.models.equipment import Equipment, Furniture
-from app.routes import auth, admin, equipment, furniture
+from app.routes import auth, admin, equipment, furniture, audit
+from app.models.audit import AuditLog
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,12 +23,12 @@ async def lifespan(app: FastAPI):
     # Initialize beanie with ALL document models
     await init_beanie(
         database=database,
-        document_models=[User, Equipment, Furniture]
+        document_models=[User, Equipment, Furniture, AuditLog]
     )
     
     print("✅ Connected to MongoDB")
     print(f"📦 Database: {settings.MONGODB_DB_NAME}")
-    print("📋 Collections initialized: users, equipment, furniture")
+    print("📋 Collections initialized: users, equipment, furniture, audit_logs")
     
     # Create upload directories
     os.makedirs("app/static/uploads/equipment_pars", exist_ok=True)
@@ -70,6 +72,7 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(equipment.router)
 app.include_router(furniture.router)
+app.include_router(audit.router)
 
 # Root endpoint
 @app.get("/")
