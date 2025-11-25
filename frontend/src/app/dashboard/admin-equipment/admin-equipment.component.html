@@ -193,6 +193,24 @@
             <mat-error *ngIf="assignForm.get('assigned_to_user_id')?.hasError('required')">Required</mat-error>
           </mat-form-field>
 
+          <!-- ✅ ADDED: Assignment Type Selection -->
+          <div class="assignment-type-group">
+            <label class="group-label">Assignment Type:</label>
+            <mat-radio-group formControlName="assignment_type">
+              <mat-radio-button value="PAR">PAR (Regular Employee)</mat-radio-button>
+              <mat-radio-button value="Job Order">Job Order Assignment</mat-radio-button>
+            </mat-radio-group>
+          </div>
+
+          <!-- ✅ ADDED: Conditional PAR Number Field -->
+          <mat-form-field appearance="outline" class="full-width" *ngIf="assignForm.get('assignment_type')?.value === 'PAR'">
+            <mat-label>PAR Number</mat-label>
+            <input matInput formControlName="par_number" placeholder="Enter PAR number">
+            <mat-error *ngIf="assignForm.get('par_number')?.hasError('required')">
+              PAR number is required for PAR assignments
+            </mat-error>
+          </mat-form-field>
+
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Assignment Date</mat-label>
             <input matInput [matDatepicker]="assignPicker" formControlName="assigned_date">
@@ -202,19 +220,31 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>PAR Number (Optional)</mat-label>
-            <input matInput formControlName="par_number" placeholder="PAR-2024-001">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
             <mat-label>Previous Recipient (Optional)</mat-label>
             <input matInput formControlName="previous_recipient">
           </mat-form-field>
+
+          <!-- ✅ ADDED: Info Box for Assignment Type -->
+          <div class="info-box" [class.par]="assignForm.get('assignment_type')?.value === 'PAR'">
+            <mat-icon>info</mat-icon>
+            <div class="info-text">
+              <strong *ngIf="assignForm.get('assignment_type')?.value === 'PAR'">PAR Assignment:</strong>
+              <strong *ngIf="assignForm.get('assignment_type')?.value === 'Job Order'">Job Order Assignment:</strong>
+              <p *ngIf="assignForm.get('assignment_type')?.value === 'PAR'">
+                This equipment will be assigned with a Property Accountability Record (PAR). 
+                The employee will be held accountable for this property.
+              </p>
+              <p *ngIf="assignForm.get('assignment_type')?.value === 'Job Order'">
+                This is a temporary assignment for job order employees. 
+                No PAR document is required.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div class="dialog-actions">
           <button mat-button type="button" (click)="cancelForm()">Cancel</button>
-          <button mat-raised-button color="primary" type="submit">Assign Equipment</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!assignForm.valid">Assign Equipment</button>
         </div>
       </form>
     </div>
@@ -346,6 +376,79 @@
   padding: 30px 40px;
   background: #f5f7fb;
   min-height: 100vh;
+}
+
+/* Assignment Type Group */
+.assignment-type-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f5f7fb;
+  border-radius: 8px;
+}
+
+.group-label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+mat-radio-button {
+  margin: 5px 0;
+}
+
+/* Info Box */
+.info-box {
+  display: flex;
+  gap: 12px;
+  padding: 15px;
+  background: #e0f2fe;
+  border-left: 4px solid #0284c7;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.info-box.par {
+  background: #fef3c7;
+  border-left-color: #f59e0b;
+}
+
+.info-box mat-icon {
+  color: #0284c7;
+  margin-top: 2px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.info-box.par mat-icon {
+  color: #f59e0b;
+}
+
+.info-text {
+  flex: 1;
+}
+
+.info-text strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.info-text p {
+  margin: 0;
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.5;
 }
 
 /* Page Header */

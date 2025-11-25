@@ -25,6 +25,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { FilterPipe } from '../../core/pipes/filter.pipe';
+import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'app-admin-equipment',
@@ -46,6 +47,7 @@ import { FilterPipe } from '../../core/pipes/filter.pipe';
     MatMenuModule,
     MatChipsModule,
     MatDividerModule,
+    MatRadioModule,
     FilterPipe,
   ],
   templateUrl: './admin-equipment.component.html'
@@ -96,7 +98,7 @@ export class AdminEquipmentComponent implements OnInit {
   }
 
   initForms(): void {
-    // Equipment Form
+    // Equipment Form (unchanged)
     this.equipmentForm = this.fb.group({
       property_number: ['', [Validators.required]],
       gsd_code: ['', [Validators.required]],
@@ -117,9 +119,21 @@ export class AdminEquipmentComponent implements OnInit {
     this.assignForm = this.fb.group({
       assigned_to_user_id: ['', [Validators.required]],
       assigned_date: [new Date(), [Validators.required]],
-      assignment_type: ['PAR', [Validators.required]],
-      par_number: [''],
+      assignment_type: ['PAR', [Validators.required]], // Default to PAR
+      par_number: ['', [Validators.required]], // Required by default for PAR
       previous_recipient: ['']
+    });
+    
+        // ✅ ADDED: Watch for assignment type changes
+    this.assignForm.get('assignment_type')?.valueChanges.subscribe(type => {
+      const parNumberControl = this.assignForm.get('par_number');
+      if (type === 'PAR') {
+        parNumberControl?.setValidators([Validators.required]);
+      } else {
+        parNumberControl?.clearValidators();
+        parNumberControl?.setValue('');
+      }
+      parNumberControl?.updateValueAndValidity();
     });
   }
 
@@ -297,9 +311,9 @@ export class AdminEquipmentComponent implements OnInit {
       assigned_to_user_id: this.assignForm.value.assigned_to_user_id,
       assigned_to_name: `${selectedUser.first_name} ${selectedUser.surname}`,
       assigned_date: this.assignForm.value.assigned_date,
-      assignment_type: this.assignForm.value.assignment_type,
-      previous_recipient: this.assignForm.value.previous_recipient,
-      par_number: this.assignForm.value.par_number
+      assignment_type: this.assignForm.value.assignment_type, // ✅ ADDED
+      previous_recipient: this.assignForm.value.previous_recipient || null,
+      par_number: this.assignForm.value.assignment_type === 'PAR' ? this.assignForm.value.par_number : null // ✅ Conditional
     };
 
     this.equipmentService.assignEquipment(this.selectedEquipment.id, assignData).subscribe({
@@ -307,7 +321,10 @@ export class AdminEquipmentComponent implements OnInit {
         this.successMessage = 'Equipment assigned successfully!';
         this.showAssignForm = false;
         this.selectedEquipment = null;
-        this.assignForm.reset();
+        this.assignForm.reset({
+          assignment_type: 'PAR',
+          assigned_date: new Date()
+        });
         this.loadEquipment();
         this.clearMessageAfterDelay();
       },
@@ -409,10 +426,11 @@ export class AdminEquipmentComponent implements OnInit {
     });
     this.assignForm.reset({
       assignment_type: 'PAR',
-      assigned_date: new Date()
+      assigned_date: new Date(),
+      par_number: '' // ✅ Reset PAR number
     });
   }
-
+  
   clearMessageAfterDelay(): void {
     setTimeout(() => {
       this.successMessage = '';

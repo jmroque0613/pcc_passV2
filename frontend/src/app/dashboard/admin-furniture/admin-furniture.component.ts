@@ -24,6 +24,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatRadioModule } from '@angular/material/radio';
+
 
 @Component({
   selector: 'app-admin-furniture',
@@ -45,8 +47,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatMenuModule,
     MatChipsModule,
     MatDividerModule,
-    FilterPipe
-  ],
+    MatRadioModule
+],
   templateUrl: './admin-furniture.component.html'
 })
 export class AdminFurnitureComponent implements OnInit {
@@ -94,7 +96,7 @@ export class AdminFurnitureComponent implements OnInit {
   }
 
   initForms(): void {
-    // Furniture Form
+    // Furniture Form (unchanged)
     this.furnitureForm = this.fb.group({
       property_number: ['', [Validators.required]],
       gsd_code: ['', [Validators.required]],
@@ -112,13 +114,25 @@ export class AdminFurnitureComponent implements OnInit {
       remarks: ['']
     });
 
-    // Assign Form
+    // ✅ UPDATED: Assign Form with assignment_type
     this.assignForm = this.fb.group({
       assigned_to_user_id: ['', [Validators.required]],
       assigned_date: [new Date(), [Validators.required]],
       assignment_type: ['PAR', [Validators.required]],
       location: [''],
-      par_number: ['']
+      par_number: ['', [Validators.required]] // Required by default
+    });
+
+    // ✅ ADDED: Dynamic validation for PAR number
+    this.assignForm.get('assignment_type')?.valueChanges.subscribe(type => {
+      const parNumberControl = this.assignForm.get('par_number');
+      if (type === 'PAR') {
+        parNumberControl?.setValidators([Validators.required]);
+      } else {
+        parNumberControl?.clearValidators();
+        parNumberControl?.setValue('');
+      }
+      parNumberControl?.updateValueAndValidity();
     });
   }
 
@@ -278,13 +292,14 @@ export class AdminFurnitureComponent implements OnInit {
       return;
     }
 
+    // ✅ UPDATED: Include assignment_type
     const assignData = {
       assigned_to_user_id: this.assignForm.value.assigned_to_user_id,
       assigned_to_name: `${selectedUser.first_name} ${selectedUser.surname}`,
       assigned_date: this.assignForm.value.assigned_date,
-      assignment_type: this.assignForm.value.assignment_type,
-      location: this.assignForm.value.location,
-      par_number: this.assignForm.value.par_number
+      assignment_type: this.assignForm.value.assignment_type, // ✅ ADDED
+      location: this.assignForm.value.location || null,
+      par_number: this.assignForm.value.assignment_type === 'PAR' ? this.assignForm.value.par_number : null // ✅ Conditional
     };
 
     this.equipmentService.assignFurniture(this.selectedFurniture.id, assignData).subscribe({
@@ -292,7 +307,10 @@ export class AdminFurnitureComponent implements OnInit {
         this.successMessage = 'Furniture assigned successfully!';
         this.showAssignForm = false;
         this.selectedFurniture = null;
-        this.assignForm.reset();
+        this.assignForm.reset({
+          assignment_type: 'PAR',
+          assigned_date: new Date()
+        });
         this.loadFurniture();
         this.clearMessageAfterDelay();
       },
@@ -394,7 +412,8 @@ export class AdminFurnitureComponent implements OnInit {
     });
     this.assignForm.reset({
       assignment_type: 'PAR',
-      assigned_date: new Date()
+      assigned_date: new Date(),
+      par_number: ''
     });
   }
 
