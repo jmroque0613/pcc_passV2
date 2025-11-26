@@ -20,18 +20,54 @@ from app.services.audit_service import AuditService
 
 router = APIRouter(prefix="/api/equipment", tags=["Equipment"])
 
-# ============ USER ROUTES - MUST BE BEFORE /{equipment_id} ROUTE ============
 
+# Add this debugging endpoint temporarily to check what's happening
+@router.get("/debug/my-info")
+async def debug_my_info(current_user: User = Depends(get_current_user)):
+    """Debug endpoint to check user info"""
+    return {
+        "user_id": str(current_user.id),
+        "user_email": current_user.email,
+        "user_role": current_user.role,
+        "user_approved": current_user.is_approved
+    }
+
+# ============ USER ROUTES - MUST BE BEFORE /{equipment_id} ROUTE ============
 @router.get("/my-equipment", response_model=List[EquipmentResponseSchema])
 async def get_my_equipment(current_user: User = Depends(get_current_user)):
     """Get equipment assigned to current user - USER ACCESS"""
-    print(f"🔍 User requesting equipment: {current_user.email}, ID: {current_user.id}")
     
+    # Debug logging
+    user_id_str = str(current_user.id)
+    print(f"🔍 DEBUG - User requesting equipment:")
+    print(f"   Email: {current_user.email}")
+    print(f"   User ID: {user_id_str}")
+    print(f"   Role: {current_user.role}")
+    print(f"   Approved: {current_user.is_approved}")
+    
+    # Try to find ALL equipment first to debug
+    all_equipment = await Equipment.find_all().to_list()
+    print(f"📊 Total equipment in database: {len(all_equipment)}")
+    
+    # Show assigned equipment IDs
+    assigned_equipment = [eq for eq in all_equipment if eq.assigned_to_user_id]
+    print(f"📊 Total assigned equipment: {len(assigned_equipment)}")
+    for eq in assigned_equipment:
+        print(f"   - {eq.brand} {eq.model}: assigned_to_user_id = '{eq.assigned_to_user_id}'")
+    
+    # Now try the actual query
     equipment_list = await Equipment.find(
-        Equipment.assigned_to_user_id == str(current_user.id)
+        Equipment.assigned_to_user_id == user_id_str
     ).to_list()
     
-    print(f"✅ Found {len(equipment_list)} equipment items for user")
+    print(f"✅ Found {len(equipment_list)} equipment items for user {user_id_str}")
+    
+    if len(equipment_list) == 0:
+        print("⚠️  No equipment found. Checking if there's a mismatch...")
+        # Check if any equipment has similar ID
+        for eq in all_equipment:
+            if eq.assigned_to_user_id and user_id_str in str(eq.assigned_to_user_id):
+                print(f"⚠️  Found similar: {eq.assigned_to_user_id} vs {user_id_str}")
     
     return [
         EquipmentResponseSchema(
@@ -49,7 +85,7 @@ async def get_my_equipment(current_user: User = Depends(get_current_user)):
             assigned_to_user_id=eq.assigned_to_user_id,
             assigned_to_name=eq.assigned_to_name,
             assigned_date=eq.assigned_date,
-            assignment_type=eq.assignment_type,  # NEW
+            assignment_type=eq.assignment_type,
             previous_recipient=eq.previous_recipient,
             condition=eq.condition,
             status=eq.status,
